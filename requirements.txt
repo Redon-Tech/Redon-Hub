@@ -3,3 +3,5 @@ asyncio==3.4.3
 apscheduler==3.9.1
 requests==2.28.2
 python-dotenv==0.21.0
+fastapi==0.89.1
+uvicorn==0.20.0
