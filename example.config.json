@@ -1,5 +1,19 @@
 {
     "Bot": {
-        "Prefix": "."
+        "Prefix": ".",
+        "Guilds": [
+            1234567890
+        ],
+        "Owners": [
+            1234567890
+        ],
+        "Activity": {
+            "presence": "watching {users:,} costumers • {prefix}help • Version {version}",
+            "status": "online"
+        }
+    },
+    "API": {
+        "IP": "0.0.0.0",
+        "Port": 5000
     }
 }

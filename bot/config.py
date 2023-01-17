@@ -44,7 +44,7 @@ class JSONGetter(type):
                 else (cls.section, name)
             )
             _log.error(f"Tried to access non-existent config key: {dotted_path}")
-            # raise AttributeError(repr(name)) from e
+            raise AttributeError(repr(name)) from e
 
 
 class Bot(metaclass=JSONGetter):
@@ -52,3 +52,10 @@ class Bot(metaclass=JSONGetter):
     subsection = None
 
     Prefix: str
+
+class API(metaclass=JSONGetter):
+    section = "API"
+    subsection = None
+
+    IP: str
+    Port: int

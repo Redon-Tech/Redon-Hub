@@ -37,7 +37,7 @@ def setup_logging():
 
         log.setLevel(logging.INFO)
         handler = RotatingFileHandler(
-            filename="pvadmin.log",
+            filename="redonhub.log",
             encoding="utf-8",
             mode="w",
             maxBytes=max_bytes,
