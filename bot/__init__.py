@@ -6,6 +6,7 @@ from discord import Intents
 from discord.ext.commands import Bot as BotBase, when_mentioned_or
 from dotenv import load_dotenv
 from . import config, cogs
+from glob import glob
 import logging
 import os
 
@@ -18,25 +19,26 @@ class Bot(BotBase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def load_extensions(self, *names, package=None):
-        # borrowed from pycord, modified for discord.py
-        loaded_extensions = {} if store else []
+    async def load_extensions(self):
+        # borrowed from pycord, modified for our usage
 
-        for ext_path in names:
-            _log.info(f"Bot: Loading Extension {ext_path}")
-            loaded = self.load_extension(
-                ext_path, package=package
-            )
-            loaded_extensions.update(loaded) if store else loaded_extensions.extend(
-                loaded
-            )
+        cogs = [
+            path.split(os.sep)[-1][:-3]
+            for path in glob(f"{os.path.realpath(os.path.dirname(__file__))}/cogs/*.py")
+        ]
 
-        return loaded_extensions
+        for cog in cogs:
+            _log.info(f"Bot: Loading Extension {cog}")
+            await self.load_extension(f"bot.cogs.{cog}")
+
+        # for ext_path in names:
+        #     _log.info(f"Bot: Loading Extension {ext_path}")
+        #     await self.load_extension(ext_path, package=package)
 
     async def setup_hook(self):
         await super().setup_hook()
 
-        self.bot.loop.create_task(self.load_extensions(cogs))
+        bot.loop.create_task(self.load_extensions())
 
     def run(self, version):
         self.Version = version
