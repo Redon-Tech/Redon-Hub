@@ -11,6 +11,11 @@ import logging
 _log = logging.getLogger(__name__)
 app = FastAPI()
 app.logger = _log
+cog = None
+
+@app.get("/")
+async def root():
+    return {"message": "Online", "Version": cog.bot.Version}
 
 server = uvicorn.Server(
     uvicorn.Config(
@@ -34,6 +39,8 @@ class API(Cog):
 
     @Cog.listener()
     async def on_ready(self):
+        global cog
+        cog = self
         self.bot.loop.create_task(server.serve())
         self.overwrite_uvicorn_logger()
 
