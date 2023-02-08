@@ -59,3 +59,4 @@ class API(metaclass=JSONGetter):
 
     IP: str
     Port: int
+    Key: str
