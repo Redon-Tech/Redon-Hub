@@ -2,7 +2,7 @@
     File: /bot/__init__.py
     Usage: The bot's main file.
 """
-from discord import Intents
+from discord import Intents, Object as DiscordObject
 from discord.ext.commands import Bot as BotBase, when_mentioned_or
 from dotenv import load_dotenv
 from . import config, cogs
@@ -39,6 +39,14 @@ class Bot(BotBase):
         await super().setup_hook()
 
         bot.loop.create_task(self.load_extensions())
+
+        await self.sync_commands()
+
+    async def sync_commands(self):
+        for guildid in config.Bot.Guilds:
+            guild = DiscordObject(id=guildid)
+            self.tree.copy_global_to(guild=guild)
+            await self.tree.sync(guild=guild)
 
     def run(self, version):
         self.Version = version

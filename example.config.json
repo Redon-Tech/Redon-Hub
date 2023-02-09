@@ -8,8 +8,8 @@
             1234567890
         ],
         "Activity": {
-            "presence": "watching {users:,} costumers • {prefix}help • Version {version}",
-            "status": "online"
+            "Presence": "watching {users:,} costumers • {prefix}help • Version {version}",
+            "Status": "online"
         }
     },
     "API": {

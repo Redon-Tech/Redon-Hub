@@ -52,6 +52,17 @@ class Bot(metaclass=JSONGetter):
     subsection = None
 
     Prefix: str
+    Guilds: list
+    Owners: list
+
+
+class Activity(metaclass=JSONGetter):
+    section = "Bot"
+    subsection = "Activity"
+
+    Presence: str
+    Status: str
+
 
 class API(metaclass=JSONGetter):
     section = "API"
