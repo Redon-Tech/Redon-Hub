@@ -6,10 +6,10 @@
 from bot import bot
 from bot.utils.logging import setup_logging
 from logging.handlers import RotatingFileHandler
-import asyncio
-import logging
-import discord
-import contextlib
+# import asyncio
+# import logging
+# import discord
+# import contextlib
 
 version = "0.1"
 handler = None

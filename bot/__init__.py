@@ -31,6 +31,7 @@ class Bot(BotBase):
             _log.info(f"Bot: Loading Extension {cog}")
             await self.load_extension(f"bot.cogs.{cog}")
 
+        await self.sync_commands()
         # for ext_path in names:
         #     _log.info(f"Bot: Loading Extension {ext_path}")
         #     await self.load_extension(ext_path, package=package)
@@ -39,8 +40,6 @@ class Bot(BotBase):
         await super().setup_hook()
 
         bot.loop.create_task(self.load_extensions())
-
-        await self.sync_commands()
 
     async def sync_commands(self):
         for guildid in config.Bot.Guilds:

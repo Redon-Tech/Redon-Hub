@@ -3,7 +3,7 @@
     Usage: Responsible for the creation of the API
 """
 from discord.ext.commands import Cog
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, HTTPException, Depends, WebSocket
 from fastapi.security import OAuth2PasswordBearer
 from starlette.responses import RedirectResponse
 from bot import config
@@ -27,6 +27,18 @@ def api_auth(x_api_key: str = Depends(X_API_KEY)):
 @app.get("/")
 async def root():
     return {"message": "Online", "Version": cog.bot.Version}
+
+
+## Websocket
+@app.websocket("/v1/socket")
+async def websocket_endpoint(websocket: WebSocket):
+    await websocket.accept()
+    if websocket.headers.get("Authorization") != f"Bearer {config.API.Key}":
+        await websocket.close(code=1008)
+        return
+    while True:
+        data = await websocket.receive_json()
+        await websocket.send_json({"data": data})
 
 
 ## Users
@@ -93,7 +105,7 @@ class API(Cog):
         self.bot.loop.create_task(server.serve())
         self.overwrite_uvicorn_logger()
         _log.info(f"Cog {__name__} ready, syncing commands...")
-        await self.bot.sync_commands()
+        # await self.bot.sync_commands()
 
 
 async def setup(bot):
