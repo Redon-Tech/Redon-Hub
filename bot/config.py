@@ -11,7 +11,7 @@ import json
 
 _log = getLogger(__name__)
 
-with open("example.config.json") as f:
+with open("example.config.json", encoding="UTF-8") as f:
     _CONFIG = json.load(f)
 
 
@@ -26,7 +26,7 @@ def _recursive_update(d, u):
 
 if Path("config.json").exists():
     _log.info("Config: Loading user config")
-    with open("config.json") as f:
+    with open("config.json", encoding="UTF-8") as f:
         USER_CONFIG = json.load(f)
     _CONFIG = _recursive_update(_CONFIG, USER_CONFIG)
 

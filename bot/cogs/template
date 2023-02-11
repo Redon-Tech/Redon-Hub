@@ -14,8 +14,7 @@ class Template(Cog):
 
     @Cog.listener()
     async def on_ready(self):
-        _log.info(f"Cog {__name__} ready, syncing commands...")
-        await self.bot.sync_commands()
+        _log.info(f"Cog {__name__} ready")
 
 
 async def setup(bot):

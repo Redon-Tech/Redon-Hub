@@ -104,8 +104,7 @@ class API(Cog):
         cog = self
         self.bot.loop.create_task(server.serve())
         self.overwrite_uvicorn_logger()
-        _log.info(f"Cog {__name__} ready, syncing commands...")
-        # await self.bot.sync_commands()
+        _log.info(f"Cog {__name__} ready")
 
 
 async def setup(bot):
