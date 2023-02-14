@@ -23,5 +23,10 @@ bot = Bot(
 )
 
 
-with setup_logging():
-    bot.run(os.getenv("token"))
+def main():
+    with setup_logging():
+        bot.run(os.getenv("token"))
+
+
+if __name__ == "__main__":
+    main()
