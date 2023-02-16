@@ -4,7 +4,7 @@
 """
 from discord import Object as DiscordObject
 from discord.ext.commands import Bot as BotBase
-from . import config, data
+from . import config
 from glob import glob
 import logging
 import os
@@ -15,7 +15,6 @@ _log = logging.getLogger(__name__)
 class Bot(BotBase):
     def __init__(self, *args, **kwargs):
         self.Version = kwargs.get("version")
-        self.Data = data.Data()
         super().__init__(*args, **kwargs)
 
     async def load_extensions(self):
