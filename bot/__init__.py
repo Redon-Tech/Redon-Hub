@@ -5,6 +5,7 @@
 from discord import Object as DiscordObject
 from discord.ext.commands import Bot as BotBase
 from . import config
+from .data import database
 from glob import glob
 import logging
 import os
@@ -15,6 +16,8 @@ _log = logging.getLogger(__name__)
 class Bot(BotBase):
     def __init__(self, *args, **kwargs):
         self.Version = kwargs.get("version")
+        self.ready = False
+        self.database = database
         super().__init__(*args, **kwargs)
 
     async def load_extensions(self):
@@ -41,3 +44,12 @@ class Bot(BotBase):
             guild = DiscordObject(id=guildid)
             self.tree.copy_global_to(guild=guild)
             await self.tree.sync(guild=guild)
+
+    async def on_ready(self):
+        if not self.ready:
+            self.ready = True
+            _log.info(f"Bot Online | {self.user} | {self.user.id}")
+
+            await database.connect()
+
+            _log.info("Database Connected")

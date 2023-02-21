@@ -64,6 +64,13 @@ class Activity(metaclass=JSONGetter):
     Status: str
 
 
+class Data(metaclass=JSONGetter):
+    section = "Data"
+    subsection = None
+
+    Database: str
+
+
 class API(metaclass=JSONGetter):
     section = "API"
     subsection = None

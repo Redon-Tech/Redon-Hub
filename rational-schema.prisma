@@ -1,45 +1,45 @@
 datasource db {
-  provider = "mysql"
-  url      = env("databse")
+    provider = "postgresql"
+    url      = env("database")
 }
 
 generator client {
-  provider             = "prisma-client-py"
-  interface            = "asyncio"
-  recursive_type_depth = 5
+    provider             = "prisma-client-py"
+    interface            = "asyncio"
+    recursive_type_depth = 5
 }
 
 model User {
-  // When creating a user ALWAYS pass a id, this does not have a default
-  id         Int      @id
-  createdAt  DateTime @default(now())
-  discordId  Int      @default(0)
-  verifiedAt DateTime @default(now())
-  purchases  Int[]
+    // When creating a user ALWAYS pass a id, this does not have a default
+    id         Int      @id
+    createdAt  DateTime @default(now())
+    discordId  BigInt   @default(0)
+    verifiedAt DateTime @default(now())
+    purchases  Int[]
 }
 
 model Product {
-  id          Int      @id @default(autoincrement())
-  createdAt   DateTime @default(now())
-  name        String
-  description String
-  price       Int
-  productId   Int
-  attachments String[]
-  // Tags will be refered to by ID, we would use connectors if we werent supporting open cloud
-  tags        Int[]
-  purchases   Int      @default(0)
-  owners      Int      @default(0)
+    id          Int      @id @default(autoincrement())
+    createdAt   DateTime @default(now())
+    name        String
+    description String
+    price       Int
+    productId   Int
+    attachments String[]
+    // Tags will be refered to by ID, we would use connectors if we werent supporting open cloud
+    tags        Int[]
+    purchases   Int      @default(0)
+    owners      Int      @default(0)
 
-  @@unique([name])
+    @@unique([name])
 }
 
 model Tag {
-  id          Int      @id @default(autoincrement())
-  createdAt   DateTime @default(now())
-  name        String
-  color       String[]
-  textColor   String[]
+    id        Int      @id @default(autoincrement())
+    createdAt DateTime @default(now())
+    name      String
+    color     String[]
+    textColor String[]
 
-  @@unique([name])
+    @@unique([name])
 }

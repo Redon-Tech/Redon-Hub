@@ -1,5 +1,5 @@
 datasource db {
-  provider = "mongodb"
+  provider = "mysql"
   url      = env("database")
 }
 
@@ -11,23 +11,23 @@ generator client {
 
 model User {
   // When creating a user ALWAYS pass a id, this does not have a default
-  id         Int      @id @map("_id")
+  id         Int      @id
   createdAt  DateTime @default(now())
   discordId  BigInt   @default(0)
   verifiedAt DateTime @default(now())
-  purchases  String[]
+  purchases  Json
 }
 
 model Product {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  id          Int      @id @default(autoincrement())
   createdAt   DateTime @default(now())
   name        String
   description String
   price       Int
   productId   Int
-  attachments String[]
+  attachments Json
   // Tags will be refered to by ID, we would use connectors if we werent supporting open cloud
-  tags        String[]
+  tags        Json
   purchases   Int      @default(0)
   owners      Int      @default(0)
 
@@ -35,11 +35,11 @@ model Product {
 }
 
 model Tag {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
   name      String
-  color     String[]
-  textColor String[]
+  color     Json
+  textColor Json
 
   @@unique([name])
 }

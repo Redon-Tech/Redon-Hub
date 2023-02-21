@@ -10,7 +10,7 @@ import logging
 _log = logging.getLogger(__name__)
 
 
-class Test(Cog):
+class Meta(Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -64,9 +64,12 @@ class Test(Cog):
     async def on_raw_member_remove(self, member):
         await self.set()
 
-    @app_commands.command()
-    async def ping(self, interaction: Interaction):
-        await interaction.response.send_message("pong")
+    # @app_commands.command()
+    # async def create_user(self, interaction: Interaction, id: int):
+    #     user = await get_user(self.bot.database, id)
+    #     await interaction.response.send_message(
+    #         f"User: {user.id} | {user.discordId} | {user.purchases}"
+    #     )
 
     @Cog.listener()
     async def on_ready(self):
@@ -77,4 +80,4 @@ class Test(Cog):
 
 
 async def setup(bot):
-    await bot.add_cog(Test(bot))
+    await bot.add_cog(Meta(bot))
