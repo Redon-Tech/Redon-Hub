@@ -12,6 +12,9 @@
             "Status": "online"
         }
     },
+    "Data": {
+        "Database": "mysql|postgresql|mongodb|"
+    },
     "API": {
         "IP": "0.0.0.0",
         "Port": 5000,

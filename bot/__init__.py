@@ -15,7 +15,7 @@ _log = logging.getLogger(__name__)
 
 class Bot(BotBase):
     def __init__(self, *args, **kwargs):
-        self.Version = kwargs.get("version")
+        self.version = kwargs.get("version", "N/A")
         self.ready = False
         self.database = database
         super().__init__(*args, **kwargs)

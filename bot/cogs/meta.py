@@ -20,7 +20,7 @@ class Meta(Cog):
             users=len(self.bot.users),
             prefix=config.Bot.Prefix,
             guilds=len(self.bot.guilds),
-            version=self.bot.Version,
+            version=self.bot.version,
         )
 
     @presence.setter
