@@ -64,13 +64,6 @@ class Meta(Cog):
     async def on_raw_member_remove(self, member):
         await self.set()
 
-    # @app_commands.command()
-    # async def create_user(self, interaction: Interaction, id: int):
-    #     user = await get_user(self.bot.database, id)
-    #     await interaction.response.send_message(
-    #         f"User: {user.id} | {user.discordId} | {user.purchases}"
-    #     )
-
     @Cog.listener()
     async def on_ready(self):
         self._presence = config.Activity.Presence

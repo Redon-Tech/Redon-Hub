@@ -1,12 +1,11 @@
 from prisma import Prisma
-from .. import config
+from .. import config, database as db
 from typing import Optional
 import json
 
 
 class Product:
-    def __init__(self, db: Prisma, dbResponse) -> None:
-        self.db: Prisma = db
+    def __init__(self, dbResponse) -> None:
         self.id = dbResponse.id
         self.createdAt = dbResponse.createdAt
         self.name = dbResponse.name
@@ -20,6 +19,20 @@ class Product:
 
     def __repr__(self) -> str:
         return f"<Product id={self.id} name={self.name}>"
+
+    def to_dict(self) -> dict:
+        return {
+            "id": self.id,
+            "createdAt": self.createdAt,
+            "name": self.name,
+            "description": self.description,
+            "price": self.price,
+            "productId": self.productId,
+            "attachments": self.attachments,
+            "tags": self.tags,
+            "purchases": self.purchases,
+            "owners": self.owners,
+        }
 
     @property
     def attachments(self) -> list:
@@ -49,38 +62,75 @@ class Product:
         else:
             self._tags = value
 
+    async def push(self) -> None:
+        if config.Data.Database == "mysql":
+            self._attachments = json.dumps(self.attachments)
+            self._tags = json.dumps(self.tags)
 
-async def get_product(db: Prisma, id: int) -> Product:
+        await db.product.update(
+            where={"id": self.id},
+            data={
+                "name": self.name,
+                "description": self.description,
+                "price": self.price,
+                "productId": self.productId,
+                "attachments": self._attachments,
+                "tags": self._tags,
+                "purchases": self.purchases,
+                "owners": self.owners,
+            },
+        )
+
+
+async def get_product(id: int) -> Product:
     product = await db.product.find_unique(
         where={"id": id},
     )
-    return Product(db, product)
+    return Product(product)
 
 
-async def get_products(db: Prisma) -> list:
+async def get_product_by_name(name: str) -> Product:
+    product = await db.product.find_unique(
+        where={"name": name},
+    )
+    return Product(product)
+
+
+async def get_products() -> list:
     products = await db.product.find_many()
-    return [Product(db, product) for product in products]
+    return [Product(product) for product in products]
 
 
 async def create_product(
-    db: Prisma,
     name: str,
     description: Optional[str],
-    price: Optional[int],
-    productId: Optional[int],
+    price: int,
+    productId: int,
+    attachments: Optional[list],
+    tags: Optional[list],
 ) -> Product:
+    if config.Data.Database == "mysql":
+        attachments = json.dumps(attachments)
+        tags = json.dumps(tags)
+
     prod = await db.product.create(
         data={
             "name": name,
+            "description": description or "",
+            "price": price,
+            "productId": productId,
+            "attachments": attachments,
+            "tags": tags,
         },
     )
-    product = Product(db, prod)
+    product = Product(prod)
 
-    if description:
-        product.description = description
-    if price:
-        product.price = price
-    if productId:
-        product.productId = productId
+    await product.push()
 
     return product
+
+
+async def delete_product(id: int) -> None:
+    await db.product.delete(
+        where={"id": id},
+    )

@@ -15,6 +15,15 @@ class Tag:
     def __repr__(self) -> str:
         return f"<Tag id={self.id} name={self.name}>"
 
+    def to_dict(self) -> dict:
+        return {
+            "id": self.id,
+            "createdAt": self.createdAt,
+            "name": self.name,
+            "color": self.color,
+            "textColor": self.textColor,
+        }
+
     @property
     def color(self) -> list:
         if type(self._color) == list:
@@ -43,6 +52,16 @@ class Tag:
         else:
             self._textColor = value
 
+    async def push(self) -> None:
+        await self.db.tag.update(
+            where={"id": self.id},
+            data={
+                "name": self.name,
+                "color": self._color,
+                "textColor": self._textColor,
+            },
+        )
+
 
 async def get_tag(db: Prisma, id: int) -> Tag:
     tag = await db.tag.find_unique(
@@ -65,3 +84,9 @@ async def create_tag(db: Prisma, name: str, color: list, textColor: list) -> Tag
         },
     )
     return Tag(db, tag)
+
+
+async def delete_tag(db: Prisma, id: int) -> None:
+    await db.tag.delete(
+        where={"id": id},
+    )

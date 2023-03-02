@@ -8,7 +8,19 @@ from fastapi import FastAPI, HTTPException, Depends, WebSocket
 from fastapi.security import OAuth2PasswordBearer
 from starlette.responses import RedirectResponse
 from bot import config
-from bot.data import get_user, get_user_by_discord_id, create_user
+from bot.data import (
+    get_user,
+    get_users,
+    get_user_by_discord_id,
+    create_user,
+    get_products,
+    get_product_by_name,
+    get_product,
+    create_product,
+    delete_product,
+)
+from pydantic import BaseModel
+from typing import Union
 import uvicorn
 import logging
 import random
@@ -29,6 +41,24 @@ def api_auth(x_api_key: str = Depends(X_API_KEY)):
     return x_api_key
 
 
+# Schemas
+
+
+class Tag(BaseModel):
+    name: str
+    color: list
+    textColor: list
+
+
+class Product(BaseModel):
+    name: str
+    description: Union[str, None]
+    price: float
+    productId: float
+    attachments: list
+    tags: list
+
+
 @app.get("/")
 async def root():
     return {"message": "Online", "Version": cog.bot.Version}
@@ -47,7 +77,7 @@ async def websocket_endpoint(websocket: WebSocket):
             _log.info(f"Got Verification Request for {data.get('data')}")
 
             try:
-                user = await get_user(cog.bot.database, data.get("data"))
+                user = await get_user(data.get("data"))
             except Exception as e:
                 user = None
 
@@ -67,13 +97,35 @@ async def v1root():
 
 @app.get("/v1/users", dependencies=[Depends(api_auth)])
 async def users_get():
-    raise HTTPException(status_code=501, detail="Not Implemented")
+    try:
+        users = await get_users()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+    results = {}
+    for user in users:
+        results[user.id] = user.to_dict()
+
+    return results
+
+
+@app.get("/v1/users/{user_id}", dependencies=[Depends(api_auth)])
+async def users_get_user(user_id: int, discordId: bool = False):
+    try:
+        if discordId:
+            user = await get_user_by_discord_id(user_id)
+        else:
+            user = await get_user(user_id)
+    except Exception as e:
+        raise HTTPException(status_code=404, detail="User Not Found")
+
+    return user.to_dict()
 
 
 @app.post("/v1/users/{user_id}/verify", dependencies=[Depends(api_auth)])
 async def users_post_verify(user_id: int):
     try:
-        user = await get_user(cog.bot.database, user_id)
+        user = await get_user(user_id)
     except Exception as e:
         user = None
 
@@ -85,24 +137,75 @@ async def users_post_verify(user_id: int):
         return {"message": "User Already Verified"}
 
 
-@app.get("/v1/users/{user_id}", dependencies=[Depends(api_auth)])
-async def users_get_user(user_id):
-    raise HTTPException(status_code=501, detail="Not Implemented")
-
-
 ## Products
 @app.get("/v1/products", dependencies=[Depends(api_auth)])
 async def products_get():
-    raise HTTPException(status_code=501, detail="Not Implemented")
+    try:
+        products = await get_products()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Internal Server Error")
 
+    results = {}
+    for product in products:
+        results[product.id] = product.to_dict()
 
-@app.post("/v1/products", dependencies=[Depends(api_auth)])
-async def products_post():
-    raise HTTPException(status_code=501, detail="Not Implemented")
+    return results
 
 
 @app.get("/v1/products/{product_id}", dependencies=[Depends(api_auth)])
-async def products_get_product():
+async def products_get_product(product_id: Union[int, str]):
+    if type(product_id) == str:
+        try:
+            product_info = await get_product_by_name(product_id)
+            product_id = product_info.id
+        except Exception as e:
+            raise HTTPException(status_code=404, detail="Product Not Found (By Name)")
+
+    try:
+        product = await get_product(product_id)
+    except Exception as e:
+        raise HTTPException(status_code=404, detail="Product Not Found")
+
+    return product.to_dict()
+
+
+@app.post("/v1/products", dependencies=[Depends(api_auth)])
+async def products_post(product: Product):
+    try:
+        product = await create_product(
+            product.name,
+            product.description,
+            product.price,
+            product.productId,
+            product.attachments,
+            product.tags,
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+    return product.to_dict()
+
+
+@app.delete("/v1/products/{product_id}", dependencies=[Depends(api_auth)])
+async def products_delete(product_id: Union[int, str]):
+    if type(product_id) == str:
+        try:
+            product_info = await get_product_by_name(product_id)
+            product_id = product_info.id
+        except Exception as e:
+            raise HTTPException(status_code=404, detail="Product Not Found")
+
+    try:
+        await delete_product(product_id)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+    return {"message": "Product Deleted"}
+
+
+## Tags
+@app.get("/v1/tags", dependencies=[Depends(api_auth)])
+async def tags_get():
     raise HTTPException(status_code=501, detail="Not Implemented")
 
 
@@ -136,7 +239,7 @@ class API(Cog):
 
         if key in verificationKeys:
             try:
-                user = await get_user(self.bot.database, verificationKeys[key])
+                user = await get_user(verificationKeys[key])
             except Exception as e:
                 user = None
 
@@ -145,7 +248,7 @@ class API(Cog):
                 await user.push()
                 await interaction.followup.send("User verified!", ephemeral=True)
             else:
-                user = await create_user(self.bot.database, verificationKeys[key])
+                user = await create_user(verificationKeys[key])
                 user.discordId = interaction.user.id
                 await user.push()
                 await interaction.followup.send("User verified!", ephemeral=True)
@@ -157,7 +260,7 @@ class API(Cog):
         await interaction.response.defer(ephemeral=True, thinking=True)
 
         try:
-            user = await get_user_by_discord_id(self.bot.database, interaction.user.id)
+            user = await get_user_by_discord_id(interaction.user.id)
         except Exception as e:
             user = None
 

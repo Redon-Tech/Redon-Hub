@@ -17,7 +17,6 @@ class Bot(BotBase):
     def __init__(self, *args, **kwargs):
         self.version = kwargs.get("version", "N/A")
         self.ready = False
-        self.database = database
         super().__init__(*args, **kwargs)
 
     async def load_extensions(self):

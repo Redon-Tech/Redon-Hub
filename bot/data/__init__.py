@@ -4,6 +4,7 @@ if config.Data.Database == "changelater":
     pass
 else:
     from prisma import Prisma
-    from .prisma import *
 
     database = Prisma()
+
+    from .prisma import *
