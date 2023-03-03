@@ -4,7 +4,7 @@
 """
 from discord import app_commands, Interaction, Member, Embed, utils
 from discord.ext.commands import Cog
-from bot.data import get_products, product
+from bot.data import get_products, get_product_by_name
 import logging
 
 _log = logging.getLogger(__name__)
@@ -18,46 +18,52 @@ class Template(Cog):
     async def get_products_command(self, interaction: Interaction):
         await interaction.response.defer()
 
-        products = get_products()
+        products = await get_products()
 
-        embed = Embed(
-            title="Products",
-            description=f"Here is all the products I was able to find! To get more information on a individual product run /product (product)",
-            colour=interaction.user.colour,
-            timestamp=utils.utcnow(),
-            footer=f"Redon Hub •　Version {self.bot.version}"
+        await interaction.followup.send(
+            embed=Embed(
+                title="Products",
+                description=f"Here is all the products I was able to find! To get more information on a individual product run /product (product)",
+                colour=interaction.user.colour,
+                timestamp=utils.utcnow(),
+            )
+            .set_footer(text=f"Redon Hub • Version {self.bot.version}")
+            .add_field(
+                name="Products",
+                value="\n".join([product.name for product in products]) or "None",
+            )
         )
 
-        embed.add_field(name="Products", value="\n".join([product.name for product in products]))
-
-        await interaction.followup.send(embed=embed)
-
     @app_commands.command(name="product")
-    async def get_product_info_command(self, interaction: Interaction, product_name: str):
+    async def get_product_info_command(
+        self, interaction: Interaction, product_name: str
+    ):
         try:
-            product = get_product_by_name(product_name)
+            product = await get_product_by_name(product_name)
         except Exception:
             product = None
-        
-        if product:
-            embed = Embed(
-                title=product.name,
-                description=f"Here is all the info I was able to get on {product.name}!",
-                colour=interaction.user.colour,
-                timestamp=utils.utcnow(),
-                footer=f"Redon Hub •　Version {self.bot.version}"
-            )
 
-            embed.add_field(name="Price", value=product.price, inline=True)
-            embed.add_field(name="Description", value=product.description, inline=False)
+        if product:
+            await interaction.response.send_message(
+                embed=Embed(
+                    title=product.name,
+                    description=f"Here is all the info I was able to get on {product.name}!",
+                    colour=interaction.user.colour,
+                    timestamp=utils.utcnow(),
+                )
+                .set_footer(text=f"Redon Hub • Version {self.bot.version}")
+                .add_field(name="Price", value=product.price, inline=True)
+                .add_field(name="Description", value=product.description, inline=False)
+            )
         else:
-            await interaction.response.send_message(embed=Embed(
-                title="Not Found",
-                description=f"I was unable to find any information on {product_name}.",
-                colour=interaction.user.colour,
-                timestamp=utils.utcnow(),
-                footer=f"Redon Hub •　Version {self.bot.version}"
-            ))
+            await interaction.response.send_message(
+                embed=Embed(
+                    title="Not Found",
+                    description=f"I was unable to find any information on {product_name}.",
+                    colour=interaction.user.colour,
+                    timestamp=utils.utcnow(),
+                ).set_footer(text=f"Redon Hub • Version {self.bot.version}")
+            )
 
     @Cog.listener()
     async def on_ready(self):

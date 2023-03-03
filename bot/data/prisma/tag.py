@@ -1,11 +1,10 @@
 from prisma import Prisma
-from .. import config
+from .. import config, database as db
 import json
 
 
 class Tag:
-    def __init__(self, db: Prisma, dbResponse) -> None:
-        self.db: Prisma = db
+    def __init__(self, dbResponse) -> None:
         self.id = dbResponse.id
         self.createdAt = dbResponse.createdAt
         self.name = dbResponse.name
@@ -15,7 +14,7 @@ class Tag:
     def __repr__(self) -> str:
         return f"<Tag id={self.id} name={self.name}>"
 
-    def to_dict(self) -> dict:
+    def dict(self) -> dict:
         return {
             "id": self.id,
             "createdAt": self.createdAt,
@@ -53,7 +52,11 @@ class Tag:
             self._textColor = value
 
     async def push(self) -> None:
-        await self.db.tag.update(
+        if config.Data.Database == "mysql":
+            self._color = json.dumps(self._color)
+            self._textColor = json.dumps(self._textColor)
+
+        await db.tag.update(
             where={"id": self.id},
             data={
                 "name": self.name,
@@ -63,19 +66,23 @@ class Tag:
         )
 
 
-async def get_tag(db: Prisma, id: int) -> Tag:
+async def get_tag(id: int) -> Tag:
     tag = await db.tag.find_unique(
         where={"id": id},
     )
-    return Tag(db, tag)
+    return Tag(tag)
 
 
-async def get_tags(db: Prisma) -> list[Tag]:
+async def get_tags() -> list[Tag]:
     tags = await db.tag.find_many()
-    return [Tag(db, tag) for tag in tags]
+    return [Tag(tag) for tag in tags]
 
 
-async def create_tag(db: Prisma, name: str, color: list, textColor: list) -> Tag:
+async def create_tag(name: str, color: list, textColor: list) -> Tag:
+    if config.Data.Database == "mysql":
+        color = json.dumps(color)
+        textColor = json.dumps(textColor)
+
     tag = await db.tag.create(
         data={
             "name": name,
@@ -83,10 +90,10 @@ async def create_tag(db: Prisma, name: str, color: list, textColor: list) -> Tag
             "textColor": textColor,
         },
     )
-    return Tag(db, tag)
+    return Tag(tag)
 
 
-async def delete_tag(db: Prisma, id: int) -> None:
+async def delete_tag(id: int) -> None:
     await db.tag.delete(
         where={"id": id},
     )

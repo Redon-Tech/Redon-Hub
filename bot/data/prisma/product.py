@@ -20,7 +20,7 @@ class Product:
     def __repr__(self) -> str:
         return f"<Product id={self.id} name={self.name}>"
 
-    def to_dict(self) -> dict:
+    def dict(self) -> dict:
         return {
             "id": self.id,
             "createdAt": self.createdAt,
@@ -124,8 +124,6 @@ async def create_product(
         },
     )
     product = Product(prod)
-
-    await product.push()
 
     return product
 

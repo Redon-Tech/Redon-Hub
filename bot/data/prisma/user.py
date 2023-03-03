@@ -14,7 +14,7 @@ class User:
     def __repr__(self) -> str:
         return f"<User id={self.id} discordId={self.discordId}>"
 
-    def to_dict(self) -> dict:
+    def dict(self) -> dict:
         return {
             "id": self.id,
             "createdAt": self.createdAt,

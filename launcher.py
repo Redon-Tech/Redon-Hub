@@ -12,7 +12,7 @@ import os
 
 load_dotenv()
 
-version = "0.1"
+version = "1.0-alpha.1"
 handler = None
 bot = Bot(
     when_mentioned_or(config.Bot.Prefix),

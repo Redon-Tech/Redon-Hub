@@ -15,25 +15,33 @@ class User(Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @app_commands.commad(name="profile")
-    async def user_profile(interaction: Interaction, member: Optional[Member]):
+    @app_commands.command(name="profile")
+    async def user_profile(self, interaction: Interaction, member: Optional[Member]):
         member = member or interaction.user
         try:
-            user = get_user_by_discord_id(self.bot.database, member.id)
-        except Exception:
+            user = await get_user_by_discord_id(member.id)
+        except Exception as e:
+            _log.error(e)
             user = None
-        
+
         if user:
-            embed = Embed(
-                title="User Profile",
-                # description=f"Here is the information I was able to find on {member.mention}",
-                colour=interaction.user.colour,
-                timestamp=utils.utcnow(),
-                footer=f"Redon Hub •　Version {self.bot.version}"
+            embed = (
+                Embed(
+                    title="User Profile",
+                    # description=f"Here is the information I was able to find on {member.mention}",
+                    colour=interaction.user.colour,
+                    timestamp=utils.utcnow(),
+                )
+                .set_footer(text=f"Redon Hub • Version {self.bot.version}")
+                .set_author(name=member.name, icon_url=member.avatar.url)
             )
 
-            embed.add_field(name="Linked Account", values=user.id, inline=True)
-            embed.add_field(name="Discord Account", values=member.mention, inline=True)
+            embed.add_field(
+                name="Linked Account",
+                value=f"[{user.id}](https://roblox.com/users/{user.id}/profile)",
+                inline=True,
+            )
+            embed.add_field(name="Discord Account", value=member.mention, inline=True)
             products = []
             for product in user.purchases:
                 try:
@@ -41,17 +49,24 @@ class User(Cog):
                 except Exception:
                     pass
 
-            embed.add_field(name="Owned Products", values="".join(products), inline=False)
+            embed.add_field(
+                name="Owned Products",
+                value="\n".join(products) or "None",
+                inline=False,
+            )
 
             await interaction.response.send_message(embed=embed)
         else:
-            await interaction.response.send_message(embed=Embed(
-                title="Not Found",
-                description=f"I was unable to find any information on {member.mention}.",
-                colour=interaction.user.colour,
-                timestamp=utils.utcnow(),
-                footer=f"Redon Hub •　Version {self.bot.version}"
-            ))
+            await interaction.response.send_message(
+                embed=Embed(
+                    title="Not Found",
+                    description=f"I was unable to find any information on {member.mention}.",
+                    colour=interaction.user.colour,
+                    timestamp=utils.utcnow(),
+                )
+                .set_footer(text=f"Redon Hub • Version {self.bot.version}")
+                .set_author(name=member.name, icon_url=member.avatar.url)
+            )
 
     @Cog.listener()
     async def on_ready(self):

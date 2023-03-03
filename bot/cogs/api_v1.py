@@ -18,9 +18,14 @@ from bot.data import (
     get_product,
     create_product,
     delete_product,
+    get_tags,
+    get_tag,
+    create_tag,
+    delete_tag,
 )
 from pydantic import BaseModel
 from typing import Union
+from datetime import datetime
 import uvicorn
 import logging
 import random
@@ -44,19 +49,47 @@ def api_auth(x_api_key: str = Depends(X_API_KEY)):
 # Schemas
 
 
-class Tag(BaseModel):
+class UserDisplay(BaseModel):
+    id: int
+    createdAt: datetime
+    discordId: int
+    verifiedAt: datetime
+    purchases: list[int]
+
+
+class TagDisplay(BaseModel):
+    id: int
     name: str
-    color: list
-    textColor: list
+    color: list[int]
+    textColor: list[int]
+
+
+class Tag(BaseModel):
+    name: Union[str, None] = None
+    color: Union[list, None] = None
+    textColor: Union[list, None] = None
+
+
+class ProductDisplay(BaseModel):
+    id: int
+    createdAt: datetime
+    name: str
+    description: str
+    price: int
+    productId: int
+    attachments: list[int]
+    tags: list[int]
+    purchases: int
+    owners: int
 
 
 class Product(BaseModel):
-    name: str
-    description: Union[str, None]
-    price: float
-    productId: float
-    attachments: list
-    tags: list
+    name: Union[str, None] = None
+    description: Union[str, None] = None
+    price: Union[float, None] = None
+    productId: Union[float, None] = None
+    attachments: Union[int, None] = None
+    tags: Union[int, None] = None
 
 
 @app.get("/")
@@ -96,21 +129,22 @@ async def v1root():
 
 
 @app.get("/v1/users", dependencies=[Depends(api_auth)])
-async def users_get():
+async def users_get() -> dict[int, UserDisplay]:
     try:
         users = await get_users()
     except Exception as e:
+        _log.error(e)
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
     results = {}
     for user in users:
-        results[user.id] = user.to_dict()
+        results[user.id] = UserDisplay(**user.dict())
 
     return results
 
 
 @app.get("/v1/users/{user_id}", dependencies=[Depends(api_auth)])
-async def users_get_user(user_id: int, discordId: bool = False):
+async def users_get_user(user_id: int, discordId: bool = False) -> UserDisplay:
     try:
         if discordId:
             user = await get_user_by_discord_id(user_id)
@@ -119,11 +153,11 @@ async def users_get_user(user_id: int, discordId: bool = False):
     except Exception as e:
         raise HTTPException(status_code=404, detail="User Not Found")
 
-    return user.to_dict()
+    return UserDisplay(**user.dict())
 
 
 @app.post("/v1/users/{user_id}/verify", dependencies=[Depends(api_auth)])
-async def users_post_verify(user_id: int):
+async def users_post_verify(user_id: int) -> dict:
     try:
         user = await get_user(user_id)
     except Exception as e:
@@ -139,21 +173,22 @@ async def users_post_verify(user_id: int):
 
 ## Products
 @app.get("/v1/products", dependencies=[Depends(api_auth)])
-async def products_get():
+async def products_get() -> dict[int, ProductDisplay]:
     try:
         products = await get_products()
     except Exception as e:
+        _log.error(e)
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
     results = {}
     for product in products:
-        results[product.id] = product.to_dict()
+        results[product.id] = ProductDisplay(**product.dict())
 
     return results
 
 
 @app.get("/v1/products/{product_id}", dependencies=[Depends(api_auth)])
-async def products_get_product(product_id: Union[int, str]):
+async def products_get_product(product_id: Union[int, str]) -> ProductDisplay:
     if type(product_id) == str:
         try:
             product_info = await get_product_by_name(product_id)
@@ -166,11 +201,11 @@ async def products_get_product(product_id: Union[int, str]):
     except Exception as e:
         raise HTTPException(status_code=404, detail="Product Not Found")
 
-    return product.to_dict()
+    return ProductDisplay(**product.dict())
 
 
 @app.post("/v1/products", dependencies=[Depends(api_auth)])
-async def products_post(product: Product):
+async def products_post(product: Product) -> ProductDisplay:
     try:
         product = await create_product(
             product.name,
@@ -181,13 +216,41 @@ async def products_post(product: Product):
             product.tags,
         )
     except Exception as e:
+        _log.error(e)
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
-    return product.to_dict()
+    return ProductDisplay(**product.dict())
+
+
+@app.patch("/v1/products/{product_id}", dependencies=[Depends(api_auth)])
+async def products_patch(
+    product_id: Union[int, str], product: Product
+) -> ProductDisplay:
+    if type(product_id) == str:
+        try:
+            product_info = await get_product_by_name(product_id)
+            product_id = product_info.id
+        except Exception as e:
+            raise HTTPException(status_code=404, detail="Product Not Found")
+
+    try:
+        updated_product = product.dict(exclude_unset=True)
+        product = await get_product(product_id)
+
+        print(updated_product)
+        for key, value in updated_product.items():
+            setattr(product, key, value)
+
+        await product.push()
+    except Exception as e:
+        _log.error(e)
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+    return ProductDisplay(**product.dict())
 
 
 @app.delete("/v1/products/{product_id}", dependencies=[Depends(api_auth)])
-async def products_delete(product_id: Union[int, str]):
+async def products_delete(product_id: Union[int, str]) -> dict:
     if type(product_id) == str:
         try:
             product_info = await get_product_by_name(product_id)
@@ -198,6 +261,7 @@ async def products_delete(product_id: Union[int, str]):
     try:
         await delete_product(product_id)
     except Exception as e:
+        _log.error(e)
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
     return {"message": "Product Deleted"}
@@ -205,8 +269,67 @@ async def products_delete(product_id: Union[int, str]):
 
 ## Tags
 @app.get("/v1/tags", dependencies=[Depends(api_auth)])
-async def tags_get():
-    raise HTTPException(status_code=501, detail="Not Implemented")
+async def tags_get() -> dict[int, TagDisplay]:
+    try:
+        tags = await get_tags()
+    except Exception as e:
+        _log.error(e)
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+    results = {}
+    for tag in tags:
+        results[tag.id] = TagDisplay(**tag.dict())
+
+    return results
+
+
+@app.get("/v1/tags/{tag_id}", dependencies=[Depends(api_auth)])
+async def tags_get_tag(tag_id: int) -> TagDisplay:
+    try:
+        tag = await get_tag(tag_id)
+    except Exception as e:
+        raise HTTPException(status_code=404, detail="Tag Not Found")
+
+    return TagDisplay(**tag.dict())
+
+
+@app.post("/v1/tags", dependencies=[Depends(api_auth)])
+async def tags_post(tag: Tag) -> TagDisplay:
+    try:
+        tag = await create_tag(tag.name, tag.color, tag.textColor)
+    except Exception as e:
+        _log.error(e)
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+    return TagDisplay(**tag.dict())
+
+
+@app.patch("/v1/tags/{tag_id}", dependencies=[Depends(api_auth)])
+async def tags_patch(tag_id: int, tag: Tag) -> TagDisplay:
+    try:
+        updated_tag = tag.dict(exclude_unset=True)
+        tag = await get_tag(tag_id)
+
+        for key, value in updated_tag.items():
+            setattr(tag, key, value)
+
+        await tag.push()
+    except Exception as e:
+        _log.error(e)
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+    return TagDisplay(**tag.dict())
+
+
+@app.delete("/v1/tags/{tag_id}", dependencies=[Depends(api_auth)])
+async def tags_delete(tag_id: int) -> dict:
+    try:
+        await delete_tag(tag_id)
+    except Exception as e:
+        _log.error(e)
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+    return {"message": "Tag Deleted"}
 
 
 server = uvicorn.Server(
