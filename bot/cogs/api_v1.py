@@ -77,7 +77,7 @@ class ProductDisplay(BaseModel):
     description: str
     price: int
     productId: int
-    attachments: list[int]
+    attachments: list[str]
     tags: list[int]
     purchases: int
     owners: int
@@ -94,7 +94,7 @@ class Product(BaseModel):
 
 @app.get("/")
 async def root():
-    return {"message": "Online", "Version": cog.bot.Version}
+    return {"message": "Online", "Version": cog.bot.version}
 
 
 ## Websocket
