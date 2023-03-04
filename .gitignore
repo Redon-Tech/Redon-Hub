@@ -2,6 +2,10 @@
 config.json
 *.log
 
+# MKDocs ignores
+/site
+.DS_Store
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
