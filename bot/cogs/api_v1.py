@@ -156,6 +156,28 @@ async def users_get_user(user_id: int, discordId: bool = False) -> UserDisplay:
     return UserDisplay(**user.dict())
 
 
+@app.get("/v1/users/{user_id}/owns/{product_id}")
+async def users_get_user_owns(user_id: int, product_id: Union[int, str], discordId: bool = False) -> bool:
+    try:
+        if discordId:
+            user = await get_user_by_discord_id(user_id)
+        else:
+            user = await get_user(user_id)
+    except Exception as e:
+        return False
+
+    if type(product_id) == str:
+        try:
+            product_info = await get_product_by_name(product_id)
+            product_id = product_info.id
+        except Exception as e:
+            return False
+    
+    if product_id in user.purchases:
+        return True
+
+    return False
+
 @app.post("/v1/users/{user_id}/verify", dependencies=[Depends(api_auth)])
 async def users_post_verify(user_id: int) -> dict:
     try:
