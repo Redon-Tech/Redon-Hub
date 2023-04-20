@@ -17,7 +17,7 @@ handler = None
 bot = Bot(
     when_mentioned_or(config.Bot.Prefix),
     intents=Intents.all(),
-    # None required by client, but required by our cogs
+    # Everything below is only required for the cogs to run, not the bot itself.
     version=version,
     owner_ids=config.Bot.Owners,
 )
