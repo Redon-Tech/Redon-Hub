@@ -23,8 +23,10 @@ model Product {
     createdAt   DateTime @default(now())
     name        String
     description String
+    imageId     String
     price       Int
     productId   Int
+    stock       Int?
     attachments String[]
     // Tags will be refered to by ID, we would use connectors if we werent supporting open cloud
     tags        Int[]
