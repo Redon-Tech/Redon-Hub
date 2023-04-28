@@ -10,8 +10,10 @@ class Product:
         self.createdAt = dbResponse.createdAt
         self.name = dbResponse.name
         self.description = dbResponse.description
+        self.imageId = dbResponse.imageId
         self.price = dbResponse.price
         self.productId = dbResponse.productId
+        self.stock = dbResponse.stock or None
         self._attachments = dbResponse.attachments
         self._tags = dbResponse.tags
         self.purchases = dbResponse.purchases
@@ -26,8 +28,10 @@ class Product:
             "createdAt": self.createdAt,
             "name": self.name,
             "description": self.description,
+            "imageId": self.imageId,
             "price": self.price,
             "productId": self.productId,
+            "stock": self.stock,
             "attachments": self.attachments,
             "tags": self.tags,
             "purchases": self.purchases,
@@ -72,8 +76,10 @@ class Product:
             data={
                 "name": self.name,
                 "description": self.description,
+                "imageId": self.imageId,
                 "price": self.price,
                 "productId": self.productId,
+                "stock": self.stock,
                 "attachments": self._attachments,
                 "tags": self._tags,
                 "purchases": self.purchases,
@@ -104,8 +110,10 @@ async def get_products() -> list:
 async def create_product(
     name: str,
     description: Optional[str],
+    imageId: Optional[str],
     price: int,
     productId: int,
+    stock: int,
     attachments: Optional[list],
     tags: Optional[list],
 ) -> Product:
@@ -117,8 +125,10 @@ async def create_product(
         data={
             "name": name,
             "description": description or "",
+            "imageId": imageId or "",
             "price": price,
             "productId": productId,
+            "stock": stock,
             "attachments": attachments,
             "tags": tags,
         },
