@@ -3,7 +3,7 @@
     Usage: Responsible for the creation of the API
 """
 from discord.ext.commands import Cog
-from discord import app_commands, Interaction
+from discord import app_commands, Interaction, Embed, utils
 from fastapi import FastAPI, HTTPException, Depends, WebSocket, Security
 from fastapi.security.api_key import APIKeyHeader, APIKey
 from starlette.responses import RedirectResponse
@@ -37,14 +37,9 @@ _log = logging.getLogger(__name__)
 description = """
 Redon Hub is a product delivery system (A.K.A. hub) for Roblox. This bot is [open source](https://github.com/Redon-Tech/Redon-Hub)!
 
-* Users (Partially Implemented, See Below)
+* Users (Fully Implemented)
 * Products (Fully Implemented)
 * Tags (Fully Implemented)
-
-### Users (Partially Implemented)
-The reason why this is currently partially implemented is because give/revoke product enpoints do not count as purchases.
-This means the product will only get its owners increased/decreased not purchases, as of now only purchases can be increased using the websocket.
-In a future update I plan on resolving this.
 
 [Official Documentation](https://hub.redon.tech/docs)
 """
@@ -74,7 +69,7 @@ app = FastAPI(
     ],
 )
 app.logger = _log
-# cog = None
+cog = None
 X_API_KEY = APIKeyHeader(name="Authorization", auto_error=False)
 verificationKeys = {}
 
@@ -257,10 +252,10 @@ async def users_get_user_owns(
     "/v1/users/{user_id}/{product_id}", dependencies=[Depends(api_auth)], tags=["Users"]
 )
 async def users_give_user_product(
-    user_id: int, product_id: Union[int, str], discordId: bool = False
+    user_id: int, product_id: Union[int, str], discordId: bool = False, isPurchase: bool = False
 ) -> UserDisplay:
     """
-    Gives a user a specific product, please note this does not increment the purchases counter on the product.
+    Gives a user a specific product, please note this does not increment the purchases counter on the product by default you must enable it.
     """
     try:
         if discordId:
@@ -284,7 +279,33 @@ async def users_give_user_product(
             user.purchases.append(product.id)
             await user.push()
             product.owners += 1
+            if isPurchase == True:
+                product.purchases += 1
             await product.push()
+
+            try:
+                if user.discordId != 0:
+                    discordUser = await cog.bot.fetch_user(user.discordId)
+                    if discordUser.dm_channel is None:
+                        await discordUser.create_dm()
+
+                    await discordUser.dm_channel.send(
+                        embed=Embed(
+                            title="Product Retrieved",
+                            description=f"Thanks for purchasing from us! You can find the information link below.",
+                            colour=discordUser.accent_color or discordUser.color,
+                            timestamp=utils.utcnow(),
+                        )
+                        .set_footer(text=f"Redon Hub • Version {version}")
+                        .add_field(name="Product", value=product.name, inline=True)
+                        .add_field(
+                            name="Attachments",
+                            value="\n".join(product.attachments) or "None",
+                            inline=False,
+                        )
+                    )
+            except Exception as e:
+                pass
 
         return UserDisplay(**user.dict())
     except Exception as e:
@@ -633,8 +654,8 @@ class API(Cog):
 
     @Cog.listener()
     async def on_ready(self):
-        # global cog
-        # cog = self
+        global cog
+        cog = self
         self.bot.loop.create_task(server.serve())
         self.overwrite_uvicorn_logger()
         _log.info(f"Cog {__name__} ready")
