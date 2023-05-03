@@ -113,7 +113,7 @@ async def create_product(
     imageId: Optional[str],
     price: int,
     productId: int,
-    stock: int,
+    stock: Optional[int],
     attachments: Optional[list],
     tags: Optional[list],
 ) -> Product:
@@ -128,7 +128,7 @@ async def create_product(
             "imageId": imageId or "",
             "price": price,
             "productId": productId,
-            "stock": stock,
+            "stock": stock or None,
             "attachments": attachments,
             "tags": tags,
         },

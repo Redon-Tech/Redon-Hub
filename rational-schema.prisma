@@ -23,7 +23,7 @@ model Product {
     createdAt   DateTime @default(now())
     name        String
     description String
-    imageId     String
+    imageId     String   @default("")
     price       Int
     productId   Int
     stock       Int?
