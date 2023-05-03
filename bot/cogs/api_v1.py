@@ -154,28 +154,28 @@ async def root():
 
 
 ## Websocket
-@app.websocket("/v1/socket")
-async def websocket_endpoint(websocket: WebSocket):
-    await websocket.accept()
-    if websocket.headers.get("Authorization") != f"Bearer {config.API.Key}":
-        await websocket.close(code=1008)
-        return
-    while True:
-        data = await websocket.receive_json()
-        if data.get("type") == "verify_user":
-            _log.info(f"Got Verification Request for {data.get('data')}")
+# @app.websocket("/v1/socket")
+# async def websocket_endpoint(websocket: WebSocket):
+#     await websocket.accept()
+#     if websocket.headers.get("Authorization") != f"Bearer {config.API.Key}":
+#         await websocket.close(code=1008)
+#         return
+#     while True:
+#         data = await websocket.receive_json()
+#         if data.get("type") == "verify_user":
+#             _log.info(f"Got Verification Request for {data.get('data')}")
 
-            try:
-                user = await get_user(data.get("data"))
-            except Exception as e:
-                user = None
+#             try:
+#                 user = await get_user(data.get("data"))
+#             except Exception as e:
+#                 user = None
 
-            if not user or user.discordId == 0:
-                key = "".join(random.choices(string.ascii_letters + string.digits, k=5))
-                verificationKeys[key] = data.get("data")
-                await websocket.send_json({"data": key})
-            else:
-                await websocket.send_json({"data": "user_verified"})
+#             if not user or user.discordId == 0:
+#                 key = "".join(random.choices(string.ascii_letters + string.digits, k=5))
+#                 verificationKeys[key] = data.get("data")
+#                 await websocket.send_json({"data": key})
+#             else:
+#                 await websocket.send_json({"data": "user_verified"})
 
 
 ## Users
