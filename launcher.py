@@ -3,7 +3,7 @@
     Usage: Sets up logging and runs the bot.
 """
 
-from bot import Bot, config
+from bot import Bot, config, __version__ as version
 from bot.utils.logging import setup_logging
 from discord import Intents
 from discord.ext.commands import when_mentioned_or
@@ -12,7 +12,6 @@ import os
 
 load_dotenv()
 
-version = "1.0-alpha.1"
 handler = None
 bot = Bot(
     when_mentioned_or(config.Bot.Prefix),

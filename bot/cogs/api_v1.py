@@ -26,6 +26,7 @@ from bot.data import (
 from pydantic import BaseModel
 from typing import Union
 from datetime import datetime
+from .. import __version__ as version
 import uvicorn
 import logging
 import random
@@ -95,6 +96,11 @@ class Product(BaseModel):
 @app.get("/")
 async def root():
     return {"message": "Online", "Version": cog.bot.version}
+    return {
+        "message": "Online",
+        "databaseConnected": is_connected(),
+        "version": version,
+    }
 
 
 ## Websocket
