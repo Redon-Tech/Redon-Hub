@@ -13,7 +13,7 @@ class Product:
         self.imageId = dbResponse.imageId
         self.price = dbResponse.price
         self.productId = dbResponse.productId
-        self.stock = dbResponse.stock or None
+        self.stock = dbResponse.stock
         self._attachments = dbResponse.attachments
         self._tags = dbResponse.tags
         self.purchases = dbResponse.purchases
@@ -113,7 +113,6 @@ async def create_product(
     imageId: Optional[str],
     price: int,
     productId: int,
-    stock: Optional[int],
     attachments: Optional[list],
     tags: Optional[list],
 ) -> Product:
@@ -128,7 +127,6 @@ async def create_product(
             "imageId": imageId or "",
             "price": price,
             "productId": productId,
-            "stock": stock or None,
             "attachments": attachments,
             "tags": tags,
         },

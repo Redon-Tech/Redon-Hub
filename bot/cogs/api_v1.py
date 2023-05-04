@@ -28,10 +28,14 @@ from pydantic import BaseModel
 from typing import Union, Optional
 from datetime import datetime
 from .. import __version__ as version
+from dotenv import load_dotenv
 import uvicorn
 import logging
 import random
 import string
+import os
+
+load_dotenv()
 
 _log = logging.getLogger(__name__)
 description = """
@@ -135,17 +139,18 @@ class Verification(BaseModel):
     message: str
     data: Optional[str] = "key123"
 
+class APIStatus(BaseModel):
+    message: str
+    databaseConnected: bool
+    version: str
+
 
 @app.get("/")
-async def root():
+async def root() -> APIStatus:
     """
     Returns the status of the API and database as well as the version the bot is running.
     """
-    return {
-        "message": "Online",
-        "databaseConnected": is_connected(),
-        "version": version,
-    }
+    return APIStatus(message = "Online", databaseConnected = is_connected(), version = version)
 
 
 ## Websocket
@@ -175,11 +180,22 @@ async def root():
 
 ## Users
 @app.get("/v1")
-async def v1root():
+async def v1root() -> APIStatus:
     """
     Redirections to /
     """
     return RedirectResponse(url="/")
+
+
+@app.get("/v1/cart_enabled", dependencies=[Depends(api_auth)])
+async def cart_enabled() -> bool:
+    """
+    Returns if the cart is enabled or not.
+
+    The cart system has not been implemented yet, so this will always return false.
+    """
+    return False
+    # return os.getenv("roblox_cookie", None) is not None
 
 
 @app.get("/v1/users", dependencies=[Depends(api_auth)], tags=["Users"])

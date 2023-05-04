@@ -159,7 +159,6 @@ async def promptCreateProductChooseAttachments(self, interaction: Interaction):
             imageId=self.imageId.value,
             price=int(self.price.value),
             productId=int(self.productId.value),
-            stock=int(self.stock.value) or None,
             attachments=attachments,
             tags=tags,
         )
@@ -267,7 +266,6 @@ class createProduct(ui.Modal, title="Create Product"):
         label="Product Description", placeholder="Optional", style=TextStyle.paragraph
     )
     price = ui.TextInput(label="Product Price", placeholder="In Robux")
-    stock = ui.TextInput(label="Stock", placeholder="Leave blank for unlimited")
     productId = ui.TextInput(
         label="Developer Product ID", placeholder="Example: 1234567890"
     )
@@ -295,7 +293,6 @@ class createProduct(ui.Modal, title="Create Product"):
                 imageId=self.imageId,
                 price=self.price,
                 productId=self.productId,
-                stock=self.stock,
                 bot=self.bot,
             ),
         )
@@ -524,13 +521,6 @@ class updateProduct(ui.Modal, title="Update Product"):
                 label="Product Price", placeholder="In Robux", default=product.price
             )
         )
-        self.add_item(
-            ui.TextInput(
-                label="Stock",
-                placeholder="Leave blank for unlimited",
-                default=product.stock,
-            )
-        )
         self.add_item(ui.TextInput(label="Developer Product ID", default=product.price))
         self.add_item(
             ui.TextInput(
@@ -549,13 +539,60 @@ class updateProduct(ui.Modal, title="Update Product"):
                     self.product.description = item.value
                 elif item.label == "Product Price":
                     self.product.price = int(item.value)
-                elif item.label == "Stock":
-                    self.product.stock = int(item.value) or None
                 elif item.label == "Developer Product ID":
                     self.product.productId = int(item.value)
                 elif item.label == "Image ID":
                     self.product.imageId = item.value
 
+            await self.product.push()
+
+            await interaction.response.edit_message(
+                embed=Embed(
+                    title="Product Updated",
+                    description=f"Your product has been updated!",
+                    colour=interaction.user.colour,
+                    timestamp=utils.utcnow(),
+                ).set_footer(text=f"Redon Hub • Version {self.bot.version}"),
+                view=None,
+            )
+        except Exception as e:
+            _log.error(e)
+            # await interaction.followup.send(
+            await interaction.response.edit_message(
+                embed=Embed(
+                    title="Error",
+                    description="An unknown error has occured while updating.",
+                    colour=interaction.user.colour,
+                    timestamp=utils.utcnow(),
+                ).set_footer(text=f"Redon Hub • Version {self.bot.version}"),
+                view=None,
+            )
+
+
+class updateProductStock(ui.Modal, title="Update Product"):
+    def __init__(self, bot, product: Product):
+        self.bot = bot
+        self.product = product
+        super().__init__()
+
+        self.add_item(
+            ui.TextInput(
+                label="Stock",
+                placeholder="Leave blank for unlimited",
+                default=product.stock,
+                required=False,
+            )
+        )
+
+    async def on_submit(self, interaction: Interaction) -> None:
+        try:
+            for item in self.children:
+                if item.label == "Stock":
+                    try:
+                        self.product.stock = int(item.value)
+                    except ValueError:
+                        self.product.stock = None
+                
             await self.product.push()
 
             await interaction.response.edit_message(
@@ -591,7 +628,11 @@ class updateProductView(ui.View):
     async def update_product(self, interaction: Interaction, _):
         await interaction.response.send_modal(updateProduct(self.bot, self.product))
 
-    @ui.button(label="Update Tags", style=ButtonStyle.primary)
+    @ui.button(label="Update Stock", style=ButtonStyle.primary)
+    async def update_stock(self, interaction: Interaction, _):
+        await interaction.response.send_modal(updateProductStock(self.bot, self.product))
+
+    @ui.button(label="Update Tags", style=ButtonStyle.secondary)
     async def update_tags(self, interaction: Interaction, _):
         await interaction.response.defer()
 
