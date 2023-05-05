@@ -105,8 +105,8 @@ class TagDisplay(BaseModel):
 
 class Tag(BaseModel):
     name: Union[str, None] = None
-    color: Union[list, None] = None
-    textColor: Union[list, None] = None
+    color: Union[list[int], None] = None
+    textColor: Union[list[int], None] = None
 
 
 class ProductDisplay(BaseModel):
@@ -131,7 +131,7 @@ class Product(BaseModel):
     price: Union[float, None] = None
     productId: Union[float, None] = None
     stock: Union[int, None] = None
-    attachments: Union[int, None] = None
+    attachments: Union[list[str], None] = None
     tags: Union[int, None] = None
 
 
