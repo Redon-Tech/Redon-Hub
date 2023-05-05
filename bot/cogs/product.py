@@ -146,7 +146,7 @@ async def promptChooseAttachments(
 
 
 async def promptCreateProductChooseAttachments(self, interaction: Interaction):
-    attachments = await promptChooseAttachments(self, interaction)
+    attachments = await promptChooseAttachments(self, interaction, None)
 
     try:
         tags = []
