@@ -578,6 +578,8 @@ async def tags_patch(tag_id: int, tag: Tag) -> TagDisplay:
             setattr(tag, key, value)
 
         await tag.push()
+
+        tag = await get_tag(tag_id)
     except Exception as e:
         _log.error(e)
         raise HTTPException(status_code=500, detail="Internal Server Error")
