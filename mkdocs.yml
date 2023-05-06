@@ -6,10 +6,7 @@ repo_name: 'Redon-Tech/Redon-Hub'
 repo_url: 'https://github.com/Redon-Tech/Redon-Hub/'
 nav:
     - Home: index.md
-    - Setup:
-      - Initial Setup: setup/index.md
-    - Advanced Usage:
-      - Customization: advanced/customization.md
+    - Test: test.md
 theme:
   features:
     - navigation.instant
@@ -19,12 +16,19 @@ theme:
     scheme: slate
     primary: black
     accent: red
+plugins:
+  - search
 markdown_extensions:
   - pymdownx.highlight
   - pymdownx.inlinehilite
   - pymdownx.superfences
   - pymdownx.snippets
+  - pymdownx.details
   - tables
   - def_list
+  - pymdownx.tabbed:
+      alternate_style: true
   - pymdownx.tasklist:
       custom_checkbox: true
+extra_javascript:
+  - swagger-ui-bundle.js
