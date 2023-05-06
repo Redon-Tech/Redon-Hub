@@ -45,12 +45,19 @@ or view API documentation on your hub by adding `/docs` to the end of your hub's
 ## ToDo
 
 ### V1
-| Status      | Name             | Description               |
-| ----------- | ---------------- | ------------------------- |
-| Complete    | API              | Base API for the hub      |
-| Complete    | User Commands    | Commands for users to use |
-| Complete    | Product Commands | Product related commands  |
-| Not Started | Tag Commands     | Tag related commands      |
+| Status   | Name             | Description               |
+| -------- | ---------------- | ------------------------- |
+| Complete | API              | Base API for the hub      |
+| Complete | User Commands    | Commands for users to use |
+| Complete | Product Commands | Product related commands  |
+| Complete | Tag Commands     | Tag related commands      |
+
+
+### V1.1
+
+| Status | Name | Description |
+| ------ | ---- | ----------- |
+
 
 ### Version To Be Determined
 | Status      | Name                  | Description | Reason TBD                     |
