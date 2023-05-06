@@ -7,7 +7,7 @@ on:
         description: "MkDocs Deploy"
   push:
     branches:
-      - master
+      - main
 
 jobs:
   build:
