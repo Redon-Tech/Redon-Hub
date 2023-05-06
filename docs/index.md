@@ -6,15 +6,6 @@ authors:
 
 <h1 align="center">Redon Hub</h1>
 
-<div align="center">
-  
-  [![Discord](https://img.shields.io/discord/536555061510144020?label=discord&logo=discord&style=for-the-badge)](https://discord.gg/Eb384Xw)
-  [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg?style=for-the-badge)](https://github.com/psf/black)
-  [![GitHub](https://img.shields.io/github/license/redon-tech/Redon-Hub?style=for-the-badge)](https://mit-license.org/)
-  [![Latest Release](https://img.shields.io/github/v/release/redon-tech/Redon-Hub?style=for-the-badge)](https://github.com/Redon-Tech/Redon-Hub/releases)
-  
-</div>
-
 # Overview
 Redon Hub is a Roblox Product Delivery System (AKA Product Hub). This system is designed for self-hosting with multiple options for data storage to suit your needs. It is designed to be as easy to use as possible, while still being powerful and flexible.
 \
