@@ -73,6 +73,13 @@ async def get_tag(id: int) -> Tag:
     return Tag(tag)
 
 
+async def get_tag_by_name(name: str) -> Tag:
+    tag = await db.tag.find_unique(
+        where={"name": name},
+    )
+    return Tag(tag)
+
+
 async def get_tags() -> list[Tag]:
     tags = await db.tag.find_many()
     return [Tag(tag) for tag in tags]

@@ -325,23 +325,25 @@ class deleteProductSelect(ui.Select):
 
             try:
                 await delete_product(int(product))
-                await interaction.response.send_message(
+                await interaction.response.edit_message(
                     embed=Embed(
                         title="Product Deleted",
                         description=f"{product_name} has been deleted!",
                         colour=interaction.user.colour,
                         timestamp=utils.utcnow(),
                     ).set_footer(text=f"Redon Hub • Version {self.bot.version}"),
+                    view=None,
                 )
             except Exception as e:
                 _log.error(e)
-                await interaction.response.send_message(
+                await interaction.response.edit_message(
                     embed=Embed(
                         title="Error",
                         description=f"An unknown error has occured during deletion of {product_name}.\nHowever, it is possible the products was still deleted, you can check this using `/products`.",
                         colour=interaction.user.colour,
                         timestamp=utils.utcnow(),
                     ).set_footer(text=f"Redon Hub • Version {self.bot.version}"),
+                    view=None,
                 )
                 return
 
@@ -592,7 +594,7 @@ class updateProductStock(ui.Modal, title="Update Product"):
                         self.product.stock = int(item.value)
                     except ValueError:
                         self.product.stock = None
-                
+
             await self.product.push()
 
             await interaction.response.edit_message(
@@ -630,7 +632,9 @@ class updateProductView(ui.View):
 
     @ui.button(label="Update Stock", style=ButtonStyle.primary)
     async def update_stock(self, interaction: Interaction, _):
-        await interaction.response.send_modal(updateProductStock(self.bot, self.product))
+        await interaction.response.send_modal(
+            updateProductStock(self.bot, self.product)
+        )
 
     @ui.button(label="Update Tags", style=ButtonStyle.secondary)
     async def update_tags(self, interaction: Interaction, _):

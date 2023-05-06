@@ -6,3 +6,4 @@ fastapi==0.95.1
 uvicorn==0.21.1
 websockets==11.0.2
 prisma==0.8.2
+Pillow==9.5.0
