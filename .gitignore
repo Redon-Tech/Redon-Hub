@@ -1,6 +1,9 @@
 # Redon Hub Ignores
 config.json
 *.log
+*-pegg.json
+.cache
+.npm
 
 # MKDocs ignores
 /site
