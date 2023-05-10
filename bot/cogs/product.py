@@ -279,23 +279,29 @@ class createProduct(ui.Modal, title="Create Product"):
         super().__init__(**kwargs)
 
     async def on_submit(self, interaction: Interaction) -> None:
-        await interaction.response.send_message(
-            embed=Embed(
-                title="Select Tags",
-                description="Select the tags for your product",
-                colour=interaction.user.colour,
-                timestamp=utils.utcnow(),
-            ).set_footer(text=f"Redon Hub • Version {self.bot.version}"),
-            view=createProductSelectTagsView(
-                await get_tags(),
-                name=self.name,
-                description=self.description,
-                imageId=self.imageId,
-                price=self.price,
-                productId=self.productId,
-                bot=self.bot,
-            ),
-        )
+        tags = await get_tags()
+        if tags and len(tags) > 0:
+            await interaction.response.send_message(
+                embed=Embed(
+                    title="Select Tags",
+                    description="Select the tags for your product",
+                    colour=interaction.user.colour,
+                    timestamp=utils.utcnow(),
+                ).set_footer(text=f"Redon Hub • Version {self.bot.version}"),
+                view=createProductSelectTagsView(
+                    tags,
+                    name=self.name,
+                    description=self.description,
+                    imageId=self.imageId,
+                    price=self.price,
+                    productId=self.productId,
+                    bot=self.bot,
+                ),
+            )
+        else:
+            await interaction.response.defer()
+            self.values = []
+            await promptCreateProductChooseAttachments(self, interaction)
 
 
 class deleteProductSelect(ui.Select):
