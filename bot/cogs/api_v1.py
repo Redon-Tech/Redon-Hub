@@ -375,7 +375,7 @@ async def users_revoke_user_product(
 
 
 @app.post(
-    "/v1/users/{user_id}/verify", dependencies=[Depends(api_auth)], tags=["Users"]
+    "/v1/users/{user_id}/verify/key", dependencies=[Depends(api_auth)], tags=["Users"]
 )
 async def users_post_verify(user_id: int) -> Verification:
     """
@@ -387,13 +387,17 @@ async def users_post_verify(user_id: int) -> Verification:
         user = None
 
     if not user or user.discordId == 0:
+        for key, value in verificationKeys.items():
+            if value == user_id:
+                return Verification(message="Verification Key Created", data=key)
+
         key = "".join(random.choices(string.ascii_letters + string.digits, k=5))
         verificationKeys[key] = user_id
         # return {"message": "Verification Key Created", "data": key}
         return Verification(message="Verification Key Created", data=key)
     else:
         # return {"message": "User Already Verified"}
-        return Verification(message="User Already Verified")
+        return Verification(message="User Already Verified", data=None)
 
 
 ## Products
