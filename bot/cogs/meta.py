@@ -58,11 +58,11 @@ class Meta(Cog):
 
     @Cog.listener()
     async def on_member_join(self, member):
-        await self.set()
+        await self.set_status()
 
     @Cog.listener()
     async def on_raw_member_remove(self, member):
-        await self.set()
+        await self.set_status()
 
     @Cog.listener()
     async def on_ready(self):

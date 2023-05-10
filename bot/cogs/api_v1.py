@@ -139,6 +139,7 @@ class Verification(BaseModel):
     message: str
     data: Optional[str] = "key123"
 
+
 class APIStatus(BaseModel):
     message: str
     databaseConnected: bool
@@ -150,7 +151,9 @@ async def root() -> APIStatus:
     """
     Returns the status of the API and database as well as the version the bot is running.
     """
-    return APIStatus(message = "Online", databaseConnected = is_connected(), version = version)
+    return APIStatus(
+        message="Online", databaseConnected=is_connected(), version=version
+    )
 
 
 ## Websocket
@@ -268,7 +271,10 @@ async def users_get_user_owns(
     "/v1/users/{user_id}/{product_id}", dependencies=[Depends(api_auth)], tags=["Users"]
 )
 async def users_give_user_product(
-    user_id: int, product_id: Union[int, str], discordId: bool = False, isPurchase: bool = False
+    user_id: int,
+    product_id: Union[int, str],
+    discordId: bool = False,
+    isPurchase: bool = False,
 ) -> UserDisplay:
     """
     Gives a user a specific product, please note this does not increment the purchases counter on the product by default you must enable it.

@@ -4,6 +4,7 @@ config.json
 *-pegg.json
 .cache
 .npm
+*.lock
 
 # MKDocs ignores
 /site
