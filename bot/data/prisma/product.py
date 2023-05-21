@@ -14,6 +14,7 @@ class Product:
         self.price = dbResponse.price
         self.productId = dbResponse.productId
         self.stock = dbResponse.stock
+        self.role = dbResponse.role
         self._attachments = dbResponse.attachments
         self._tags = dbResponse.tags
         self.purchases = dbResponse.purchases
@@ -32,6 +33,7 @@ class Product:
             "price": self.price,
             "productId": self.productId,
             "stock": self.stock,
+            "role": self.role,
             "attachments": self.attachments,
             "tags": self.tags,
             "purchases": self.purchases,
@@ -80,6 +82,7 @@ class Product:
                 "price": self.price,
                 "productId": self.productId,
                 "stock": self.stock,
+                "role": self.role,
                 "attachments": self._attachments,
                 "tags": self._tags,
                 "purchases": self.purchases,

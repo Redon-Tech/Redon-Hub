@@ -12,6 +12,10 @@
             "Status": "online"
         }
     },
+    "Logging": {
+        "PurchasesChannel": 1234567890,
+        "GlobalCustomerRole": 1234567890
+    },
     "Data": {
         "Database": "mysql|postgresql|mongodb|"
     },

@@ -24,6 +24,7 @@ from bot.data import (
     delete_tag,
     is_connected,
 )
+from bot.utils import handlePurchase, handleRevoke
 from pydantic import BaseModel
 from typing import Union, Optional
 from datetime import datetime
@@ -306,26 +307,27 @@ async def users_give_user_product(
             await product.push()
 
             try:
-                if user.discordId != 0:
-                    discordUser = await cog.bot.fetch_user(user.discordId)
-                    if discordUser.dm_channel is None:
-                        await discordUser.create_dm()
+                await handlePurchase(cog, user, product)
+                # if user.discordId != 0:
+                #     discordUser = await cog.bot.fetch_user(user.discordId)
+                #     if discordUser.dm_channel is None:
+                #         await discordUser.create_dm()
 
-                    await discordUser.dm_channel.send(
-                        embed=Embed(
-                            title="Product Retrieved",
-                            description=f"Thanks for purchasing from us! You can find the information link below.",
-                            colour=discordUser.accent_color or discordUser.color,
-                            timestamp=utils.utcnow(),
-                        )
-                        .set_footer(text=f"Redon Hub • Version {version}")
-                        .add_field(name="Product", value=product.name, inline=True)
-                        .add_field(
-                            name="Attachments",
-                            value="\n".join(product.attachments) or "None",
-                            inline=False,
-                        )
-                    )
+                #     await discordUser.dm_channel.send(
+                #         embed=Embed(
+                #             title="Product Retrieved",
+                #             description=f"Thanks for purchasing from us! You can find the information link below.",
+                #             colour=discordUser.accent_color or discordUser.color,
+                #             timestamp=utils.utcnow(),
+                #         )
+                #         .set_footer(text=f"Redon Hub • Version {version}")
+                #         .add_field(name="Product", value=product.name, inline=True)
+                #         .add_field(
+                #             name="Attachments",
+                #             value="\n".join(product.attachments) or "None",
+                #             inline=False,
+                #         )
+                #     )
             except Exception as e:
                 pass
 
@@ -367,6 +369,11 @@ async def users_revoke_user_product(
             await user.push()
             product.owners -= 1
             await product.push()
+
+        try:
+            await handleRevoke(cog, user, product)
+        except Exception as e:
+            pass
 
         return UserDisplay(**user.dict())
     except Exception as e:

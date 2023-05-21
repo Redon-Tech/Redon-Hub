@@ -10,7 +10,7 @@ from bot.data import (
     get_product_by_name,
     get_products,
 )
-from bot.utils import ConfirmView
+from bot.utils import ConfirmView, handlePurchase, handleRevoke
 from typing import Optional
 import logging
 
@@ -422,24 +422,25 @@ class User(Cog):
                 )
 
                 try:
-                    if interaction.user.dm_channel is None:
-                        await interaction.user.create_dm()
+                    await handlePurchase(self, user, product)
+                    # if interaction.user.dm_channel is None:
+                    #     await interaction.user.create_dm()
 
-                    await interaction.user.dm_channel.send(
-                        embed=Embed(
-                            title="Product Retrieved",
-                            description=f"Thanks for purchasing from us! You can find the information link below.",
-                            colour=interaction.user.colour,
-                            timestamp=utils.utcnow(),
-                        )
-                        .set_footer(text=f"Redon Hub • Version {self.bot.version}")
-                        .add_field(name="Product", value=product.name, inline=True)
-                        .add_field(
-                            name="Attachments",
-                            value="\n".join(product.attachments) or "None",
-                            inline=False,
-                        )
-                    )
+                    # await interaction.user.dm_channel.send(
+                    #     embed=Embed(
+                    #         title="Product Retrieved",
+                    #         description=f"Thanks for purchasing from us! You can find the information link below.",
+                    #         colour=interaction.user.colour,
+                    #         timestamp=utils.utcnow(),
+                    #     )
+                    #     .set_footer(text=f"Redon Hub • Version {self.bot.version}")
+                    #     .add_field(name="Product", value=product.name, inline=True)
+                    #     .add_field(
+                    #         name="Attachments",
+                    #         value="\n".join(product.attachments) or "None",
+                    #         inline=False,
+                    #     )
+                    # )
                 except Exception as e:
                     pass
             except Exception as e:
@@ -526,6 +527,11 @@ class User(Cog):
                         timestamp=utils.utcnow(),
                     ).set_footer(text=f"Redon Hub • Version {self.bot.version}")
                 )
+
+                try:
+                    await handleRevoke(self, user, product)
+                except Exception as e:
+                    pass
             except Exception as e:
                 _log.error(e)
                 await interaction.followup.send(

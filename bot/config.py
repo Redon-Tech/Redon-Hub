@@ -64,6 +64,14 @@ class Activity(metaclass=JSONGetter):
     Status: str
 
 
+class Logging(metaclass=JSONGetter):
+    section = "Logging"
+    subsection = None
+
+    PurchasesChannel: int
+    GlobalCustomerRole: int
+
+
 class Data(metaclass=JSONGetter):
     section = "Data"
     subsection = None

@@ -12,6 +12,7 @@ from discord import (
     TextStyle,
     SelectOption,
     ButtonStyle,
+    Role,
 )
 from asyncio import TimeoutError
 from discord.ext.commands import Cog
@@ -25,6 +26,7 @@ from bot.data import (
     get_tags,
     Product,
 )
+from bot import config
 from typing import Optional
 import logging
 import re
@@ -204,6 +206,20 @@ async def promptUpdateProductChooseAttachments(
             ).set_footer(text=f"Redon Hub • Version {self.bot.version}"),
             view=None,
         )
+
+        try:
+            await sendUpdatedProductFiles(self, self.product)
+        except Exception as e:
+            _log.error(e)
+            await interaction.channel.send(
+                embed=Embed(
+                    title="Error",
+                    description="An unknown error has prevented sending updated files.\n**The product was still updated, users just have to manually retrieve the files**",
+                    colour=interaction.user.colour,
+                    timestamp=utils.utcnow(),
+                ).set_footer(text=f"Redon Hub • Version {self.bot.version}"),
+                view=None,
+            )
     except Exception as e:
         _log.error(e)
         # await interaction.followup.send(
@@ -388,6 +404,42 @@ async def sendUpdatedProductFiles(self, product: Product):
                 )
             except Exception as e:
                 pass
+
+
+async def updateUserRoles(self, previousRole: Optional[Role], product: Product):
+    if product.role != None:
+        users = await get_users()
+        guild = self.bot.get_guild(config.Bot.Guilds[0])
+        role = guild.get_role(product.role)
+
+        for user in users:
+            if product.id in user.purchases and user.discordId != 0:
+                try:
+                    member = await guild.fetch_member(user.discordId)
+
+                    if previousRole != None and previousRole in member.roles:
+                        await member.remove_roles(
+                            previousRole, reason="Product role updated"
+                        )
+
+                    await member.add_roles(role, reason="Product role updated")
+                except Exception as e:
+                    pass
+    elif previousRole != None:
+        users = await get_users()
+        guild = self.bot.get_guild(config.Bot.Guilds[0])
+
+        for user in users:
+            if product.id in user.purchases and user.discordId != 0:
+                try:
+                    member = await guild.fetch_member(user.discordId)
+
+                    if previousRole in member.roles:
+                        await member.remove_roles(
+                            previousRole, reason="Product role updates"
+                        )
+                except Exception as e:
+                    pass
 
 
 class updateProductSelectTags(ui.Select):
@@ -626,6 +678,71 @@ class updateProductStock(ui.Modal, title="Update Product"):
             )
 
 
+class updateProductRole(ui.Modal, title="Update Product"):
+    def __init__(self, bot, product: Product):
+        self.bot = bot
+        self.product = product
+        self.currentRole = product.role
+        super().__init__()
+
+        self.add_item(
+            ui.TextInput(
+                label="Role ID",
+                placeholder="Leave blank for none",
+                default=product.role,
+                required=False,
+            )
+        )
+
+    async def on_submit(self, interaction: Interaction) -> None:
+        try:
+            for item in self.children:
+                if item.label == "Role ID":
+                    try:
+                        self.product.role = int(item.value)
+                    except ValueError:
+                        self.product.role = None
+
+            await self.product.push()
+
+            await interaction.response.edit_message(
+                embed=Embed(
+                    title="Product Updated",
+                    description=f"Your product has been updated!",
+                    colour=interaction.user.colour,
+                    timestamp=utils.utcnow(),
+                ).set_footer(text=f"Redon Hub • Version {self.bot.version}"),
+                view=None,
+            )
+
+            try:
+                await updateUserRoles(self, self.currentRole, self.product)
+            except Exception as e:
+                _log.error(e)
+
+                await interaction.channel.send(
+                    embed=Embed(
+                        title="Error",
+                        description="An unknown error has caused members roles to not be updated automatically.\n**The product still has been updated properly**",
+                        colour=interaction.user.colour,
+                        timestamp=utils.utcnow(),
+                    ).set_footer(text=f"Redon Hub • Version {self.bot.version}"),
+                    view=None,
+                )
+        except Exception as e:
+            _log.error(e)
+            # await interaction.followup.send(
+            await interaction.response.edit_message(
+                embed=Embed(
+                    title="Error",
+                    description="An unknown error has occured while updating.",
+                    colour=interaction.user.colour,
+                    timestamp=utils.utcnow(),
+                ).set_footer(text=f"Redon Hub • Version {self.bot.version}"),
+                view=None,
+            )
+
+
 class updateProductView(ui.View):
     def __init__(self, product: Product, **kwargs):
         self.product = product
@@ -642,7 +759,11 @@ class updateProductView(ui.View):
             updateProductStock(self.bot, self.product)
         )
 
-    @ui.button(label="Update Tags", style=ButtonStyle.secondary)
+    @ui.button(label="Update Customer Role", style=ButtonStyle.primary)
+    async def update_customer_role(self, interaction: Interaction, _):
+        await interaction.response.send_modal(updateProductRole(self.bot, self.product))
+
+    @ui.button(label="Update Tags", style=ButtonStyle.primary)
     async def update_tags(self, interaction: Interaction, _):
         await interaction.response.defer()
 
@@ -660,7 +781,7 @@ class updateProductView(ui.View):
             ),
         )
 
-    @ui.button(label="Update Attachments", style=ButtonStyle.danger)
+    @ui.button(label="Update Attachments", style=ButtonStyle.primary)
     async def update_attachments(self, interaction: Interaction, _):
         await interaction.response.defer()
 
@@ -739,6 +860,54 @@ class ProductCog(Cog):
 
     @get_product_info_command.autocomplete("product_name")
     async def get_product_info_command_autocomplete(
+        self, interaction: Interaction, current_product_name: str
+    ):
+        try:
+            products = await get_products()
+        except Exception:
+            products = []
+
+        return [
+            app_commands.Choice(name=product.name, value=product.name)
+            for product in products
+            if current_product_name.lower() in product.name.lower()
+        ]
+
+    @product_admin.command(
+        name="stats", description="Get statistics on a specific product"
+    )
+    async def get_product_stats_info_command(
+        self, interaction: Interaction, product_name: str
+    ):
+        try:
+            product = await get_product_by_name(product_name)
+        except Exception:
+            product = None
+
+        if product:
+            await interaction.response.send_message(
+                embed=Embed(
+                    title=product.name,
+                    description=f"Here is all the statistics I was able to get on `{product.name}`!",
+                    colour=interaction.user.colour,
+                    timestamp=utils.utcnow(),
+                )
+                .set_footer(text=f"Redon Hub • Version {self.bot.version}")
+                .add_field(name="Purchases", value=product.purchases, inline=True)
+                .add_field(name="Owners", value=product.owners, inline=False)
+            )
+        else:
+            await interaction.response.send_message(
+                embed=Embed(
+                    title="Not Found",
+                    description=f"I was unable to find any information on `{product_name}`.",
+                    colour=interaction.user.colour,
+                    timestamp=utils.utcnow(),
+                ).set_footer(text=f"Redon Hub • Version {self.bot.version}")
+            )
+
+    @get_product_stats_info_command.autocomplete("product_name")
+    async def get_product_stats_info_command_autocomplete(
         self, interaction: Interaction, current_product_name: str
     ):
         try:
