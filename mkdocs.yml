@@ -7,17 +7,29 @@ repo_url: 'https://github.com/Redon-Tech/Redon-Hub/'
 nav:
     - Home: index.md
     - Test: test.md
+
 theme:
   features:
     - navigation.instant
     - navigation.tabs
   name: 'material'
   palette:
-    scheme: slate
-    primary: black
-    accent: red
+    - scheme: slate
+      primary: indigo
+      accent: red
+      toggle:
+        icon: material/brightness-3
+        name: Dark
+    - scheme: default
+      primary: indigo
+      accent: red
+      toggle:
+        icon: material/brightness-7
+        name: Light
+
 plugins:
   - search
+
 markdown_extensions:
   - pymdownx.highlight
   - pymdownx.inlinehilite
@@ -30,5 +42,6 @@ markdown_extensions:
       alternate_style: true
   - pymdownx.tasklist:
       custom_checkbox: true
+
 extra_javascript:
   - swagger-ui-bundle.js
