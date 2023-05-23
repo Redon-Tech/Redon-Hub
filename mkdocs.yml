@@ -6,26 +6,39 @@ repo_name: 'Redon-Tech/Redon-Hub'
 repo_url: 'https://github.com/Redon-Tech/Redon-Hub/'
 nav:
     - Home: index.md
-    - Test: test.md
+    - Setup:
+      - setup/index.md
+      - Bot:
+        - setup/bot/setup.md
+        - Database Setup: setup/bot/database.md
+        - Configuration: setup/bot/configuration.md
+        - Running: setup/bot/running.md
+        - Hosting: setup/bot/hosting.md
 
 theme:
   features:
     - navigation.instant
     - navigation.tabs
+    - navigation.tracking
+    - navigation.top
+    - toc.follow
   name: 'material'
+  icon:
+    logo: material/package-variant
+  favicon: https://redon.tech/assets/img/Redon%20Tech%20Logo%20New%20Transparent.png
   palette:
-    - scheme: slate
-      primary: indigo
-      accent: red
-      toggle:
-        icon: material/brightness-3
-        name: Dark
     - scheme: default
       primary: indigo
       accent: red
       toggle:
         icon: material/brightness-7
-        name: Light
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: red
+      toggle:
+        icon: material/brightness-3
+        name: Switch to light mode
 
 plugins:
   - search
@@ -36,6 +49,7 @@ markdown_extensions:
   - pymdownx.superfences
   - pymdownx.snippets
   - pymdownx.details
+  - admonition
   - tables
   - def_list
   - pymdownx.tabbed:

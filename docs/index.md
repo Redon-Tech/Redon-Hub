@@ -1,7 +1,8 @@
 ---
 authors:
     - parker02311
-
+hide:
+    - navigation
 ---
 
 <h1 align="center">Redon Hub</h1>
