@@ -39,25 +39,49 @@ database=mysql://USER:PASSWORD@HOST:PORT/DATABASE
 We use [Prisma](https://www.prisma.io/) to manage our database. To setup Prisma we will use the following command.
 
 === "Relational Database"
+    - Windows
     ```bash
     python -m prisma generate --schema relational-schema.prisma
 
     # Using db push is not always the best way to do this, however it is the easiest.
     python -m prisma db push --schema relational-schema.prisma
     ```
+    - Linux
+    ```bash
+    python3 -m prisma generate --schema relational-schema.prisma
+
+    # Using db push is not always the best way to do this, however it is the easiest.
+    python3 -m prisma db push --schema relational-schema.prisma
+    ```
+
 === "MySQL (MariaDB)"
+    - Windows
     ```bash
     python -m prisma generate --schema mysql-schema.prisma
 
     # Using db push is not always the best way to do this, however it is the easiest.
     python -m prisma db push --schema mysql-schema.prisma
     ```
+    - Linux
+    ```bash
+    python3 -m prisma generate --schema mysql-schema.prisma
+
+    # Using db push is not always the best way to do this, however it is the easiest.
+    python3 -m prisma db push --schema mysql-schema.prisma
+    ```
 === "MongoDB"
+    - Windows
     ```bash
     python -m prisma generate --schema mongodb-schema.prisma
 
     # Using db push is not always the best way to do this, however it is the easiest.
     python -m prisma db push --schema mongodb-schema.prisma
     ```
+    - Linux
+    ```bash
+    python3 -m prisma generate --schema mongodb-schema.prisma
 
+    # Using db push is not always the best way to do this, however it is the easiest.
+    python3 -m prisma db push --schema mongodb-schema.prisma
+    ```
 [Next: Configuration](/setup/bot/configuration){ .md-button .md-button--primary }
