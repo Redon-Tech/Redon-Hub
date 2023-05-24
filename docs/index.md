@@ -31,4 +31,4 @@ This system is still in development and is not ready for use. Use at your own ri
 
 # Installation
 
-Read the [Installation Guide](https://hub.redon.tech/installation) for more information.
+Read the [Setup Guide](/setup) for more information.
