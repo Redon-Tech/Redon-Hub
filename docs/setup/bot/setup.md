@@ -3,7 +3,6 @@ authors:
     - parker02311
 ---
 
-# Installation
 Before we get to setting up our database and configuring the bot we must first install the system. To do this we will use git to clone the repository. If you do not have git installed you can download it [here](https://git-scm.com/downloads).
 
 1. Open a terminal and navigate to the directory you want to install the system in.
@@ -28,3 +27,5 @@ Before we get to setting up our database and configuring the bot we must first i
     ```bash
     pip install -U -r requirements.txt
     ```
+
+[Next: Database Setup](/setup/bot/database){ .md-button .md-button--primary }

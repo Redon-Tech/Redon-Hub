@@ -12,7 +12,7 @@ nav:
         - setup/bot/setup.md
         - Database Setup: setup/bot/database.md
         - Configuration: setup/bot/configuration.md
-        - Running: setup/bot/running.md
+        - Starting the Bot: setup/bot/running.md
         - Hosting: setup/bot/hosting.md
 
 theme:
@@ -52,6 +52,8 @@ markdown_extensions:
   - admonition
   - tables
   - def_list
+  - attr_list
+  - md_in_html
   - pymdownx.tabbed:
       alternate_style: true
   - pymdownx.tasklist:
