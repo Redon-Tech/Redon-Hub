@@ -180,7 +180,7 @@ class TagCog(Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    tag_commands = app_commands.Group(name="tags", description="Tag Commands")
+    tag_commands = app_commands.Group(name="tag", description="Tag Commands")
     tag_admin = app_commands.Group(
         name="admin",
         description="Tag Admin Commands",
@@ -188,7 +188,7 @@ class TagCog(Cog):
         default_permissions=None,
     )
 
-    @tag_commands.command(name="view", description="View all the tags this server has")
+    @app_commands.command(name="tags", description="View all the tags this server has")
     async def get_tags_command(self, interaction: Interaction):
         await interaction.response.defer()
 
@@ -208,7 +208,7 @@ class TagCog(Cog):
             )
         )
 
-    @tag_commands.command(name="get", description="Get information on a specific tag")
+    @tag_commands.command(name="info", description="Get information on a specific tag")
     async def get_tag_info_command(self, interaction: Interaction, tag_name: str):
         try:
             tag = await get_tag_by_name(tag_name)

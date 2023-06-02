@@ -62,7 +62,9 @@ async def promptChooseAttachments(
 
     while True:
         try:
-            message = await self.bot.wait_for("message", timeout=200.0)
+            message = await self.bot.wait_for(
+                "message", check=lambda m: m.author == interaction.user, timeout=200.0
+            )
         except TimeoutError:
             await info_message.edit(
                 embed=Embed(
@@ -317,6 +319,14 @@ class createProduct(ui.Modal, title="Create Product"):
         else:
             await interaction.response.defer()
             self.values = []
+            await interaction.response.send_message(
+                embed=Embed(
+                    title="Please Wait",
+                    description="Please Wait...",
+                    colour=interaction.user.colour,
+                    timestamp=utils.utcnow(),
+                ).set_footer(text=f"Redon Hub • Version {self.bot.version}"),
+            )
             await promptCreateProductChooseAttachments(self, interaction)
 
 
@@ -337,6 +347,8 @@ class deleteProductSelect(ui.Select):
         )
 
     async def callback(self, interaction: Interaction):
+        deletedProducts = []
+        failedProducts = []
         for product in self.values:
             product_name = product
             try:
@@ -347,27 +359,31 @@ class deleteProductSelect(ui.Select):
 
             try:
                 await delete_product(int(product))
-                await interaction.response.edit_message(
-                    embed=Embed(
-                        title="Product Deleted",
-                        description=f"{product_name} has been deleted!",
-                        colour=interaction.user.colour,
-                        timestamp=utils.utcnow(),
-                    ).set_footer(text=f"Redon Hub • Version {self.bot.version}"),
-                    view=None,
-                )
+                deletedProducts.append(product_name)
             except Exception as e:
                 _log.error(e)
-                await interaction.response.edit_message(
-                    embed=Embed(
-                        title="Error",
-                        description=f"An unknown error has occured during deletion of {product_name}.\nHowever, it is possible the products was still deleted, you can check this using `/products`.",
-                        colour=interaction.user.colour,
-                        timestamp=utils.utcnow(),
-                    ).set_footer(text=f"Redon Hub • Version {self.bot.version}"),
-                    view=None,
-                )
-                return
+                failedProducts.append(product_name)
+
+        if len(deletedProducts) > 0:
+            await interaction.response.send_message(
+                embed=Embed(
+                    title="Product Deleted",
+                    description=f"Succesfully deleted:\n{', '.join(deletedProducts)}",
+                    colour=interaction.user.colour,
+                    timestamp=utils.utcnow(),
+                ).set_footer(text=f"Redon Hub • Version {self.bot.version}"),
+                view=None,
+            )
+
+        if len(failedProducts) > 0:
+            await interaction.followup.send(
+                embed=Embed(
+                    title="Error",
+                    description=f"Failed to delete:\n{', '.join(failedProducts)}",
+                    colour=interaction.user.colour,
+                    timestamp=utils.utcnow(),
+                ).set_footer(text=f"Redon Hub • Version {self.bot.version}"),
+            )
 
 
 class deleteProductView(ui.View):
@@ -793,7 +809,7 @@ class ProductCog(Cog):
         self.bot = bot
 
     product_commands = app_commands.Group(
-        name="products", description="Product Commands"
+        name="product", description="Product Commands"
     )
 
     product_admin = app_commands.Group(
@@ -803,8 +819,8 @@ class ProductCog(Cog):
         default_permissions=None,
     )
 
-    @product_commands.command(
-        name="view", description="View all the products this server has"
+    @app_commands.command(
+        name="products", description="View all the products this server has"
     )
     async def get_products_command(self, interaction: Interaction):
         await interaction.response.defer()
@@ -826,7 +842,7 @@ class ProductCog(Cog):
         )
 
     @product_commands.command(
-        name="get", description="Get information on a specific product"
+        name="info", description="Get information on a specific product"
     )
     async def get_product_info_command(
         self, interaction: Interaction, product_name: str
