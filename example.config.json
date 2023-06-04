@@ -8,7 +8,7 @@
             1234567890
         ],
         "Activity": {
-            "Presence": "watching {users:,} costumers • Version {version}",
+            "Presence": "watching {users:,} customers • Version {version}",
             "Status": "online"
         }
     },
