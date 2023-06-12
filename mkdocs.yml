@@ -16,6 +16,7 @@ nav:
         - Hosting: setup/bot/hosting.md
     - Guide:
       - Commands: guide/commands.md
+      - API: guide/api.md
 
 theme:
   features:
@@ -62,6 +63,3 @@ markdown_extensions:
       alternate_style: true
   - pymdownx.tasklist:
       custom_checkbox: true
-
-extra_javascript:
-  - swagger-ui-bundle.js

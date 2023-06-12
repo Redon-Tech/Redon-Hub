@@ -8,11 +8,6 @@ Overview of the bot's commands. All commands that include "admin" can only be us
 --------------------------------------------
 
 ## Verify Commands
-**Base Syntax**
-
-`/verify`
-
---------------------------------------------
 
 ### **Link**
 **Syntax**
@@ -41,3 +36,284 @@ Unlink your Discord account to your Roblox account. All purchases are saved to t
 **Arguments**
 
 None
+
+--------------------------------------------
+
+## Profile
+**Syntax**
+
+`/profile <member>`
+
+**Description**
+
+View a user's profile which contains info stored about the user.
+
+**Arguments**
+
+- `member` - The member to view the profile of. [Optional]
+
+--------------------------------------------
+
+## Retrieve
+**Syntax**
+
+`/retrieve <product>`
+
+**Description**
+
+Retrieve a product file that you own.
+
+**Arguments**
+
+- `product` - The name of the product.
+
+--------------------------------------------
+
+## Transfer
+**Syntax**
+
+`/transfer <product> <member>`
+
+**Description**
+
+Transfer your product to another member.
+
+**Arguments**
+
+- `product` - The name of the product.
+- `member` - The member to transfer the product to.
+
+--------------------------------------------
+
+## User Commands
+
+### **Give**
+**Syntax**
+
+`/user admin give <product> <member>`
+
+**Description**
+
+Give a user a product.
+
+**Arguments**
+
+- `product` - The name of the product.
+- `member` - The member to give the product to.
+
+--------------------------------------------
+
+### **Revoke**
+**Syntax**
+
+`/user admin revoke <product> <member>`
+
+**Description**
+
+Revoke a user's product.
+
+**Arguments**
+
+- `product` - The name of the product.
+- `member` - The member to revoke the product from.
+
+--------------------------------------------
+
+## Products
+**Syntax**
+
+`/products`
+
+**Description**
+
+View all products that are available for purchase.
+
+**Arguments**
+
+None
+
+--------------------------------------------
+
+## Product Commands
+
+### **Info**
+**Syntax**
+
+`/product info <product>`
+
+**Description**
+
+View info about a product.
+
+**Arguments**
+
+- `product` - The name of the product.
+
+--------------------------------------------
+
+### **Stats**
+**Syntax**
+
+`/product admin stats <product>`
+
+**Description**
+
+View stats about a product.
+
+**Arguments**
+
+- `product` - The name of the product.
+
+--------------------------------------------
+
+### **Create**
+**Syntax**
+
+`/product admin create`
+
+**Description**
+
+Create a product.
+
+**Arguments**
+
+None
+
+--------------------------------------------
+
+### **Delete**
+**Syntax**
+
+`/product admin delete <product>`
+
+**Description**
+
+Delete a product.
+
+**Arguments**
+
+- `product` - The name of the product.
+
+--------------------------------------------
+
+### **Update**
+**Syntax**
+
+`/product admin update <product>`
+
+**Description**
+
+Update a product.
+
+**Arguments**
+
+- `product` - The name of the product.
+
+--------------------------------------------
+
+### **Clear**
+**Syntax**
+
+`/product admin clear`
+
+**Description**
+
+Delete all products.
+
+**Arguments**
+
+None
+
+--------------------------------------------
+
+## **Tags**
+**Syntax**
+
+`/tags`
+
+**Description**
+
+View all tags.
+
+**Arguments**
+
+None
+
+--------------------------------------------
+
+## Tag Commands
+
+### **Info**
+**Syntax**
+
+`/tag info <tag>`
+
+**Description**
+
+View info about a tag.
+
+**Arguments**
+
+- `tag` - The name of the tag.
+
+--------------------------------------------
+
+### **Create**
+**Syntax**
+
+`/tag admin create`
+
+**Description**
+
+Create a tag.
+
+**Arguments**
+
+None
+
+--------------------------------------------
+
+### **Delete**
+**Syntax**
+
+`/tag admin delete`
+
+**Description**
+
+Delete a tag.
+
+**Arguments**
+
+None
+
+--------------------------------------------
+
+### **Update**
+**Syntax**
+
+`/tag admin update <tag>`
+
+**Description**
+
+Update a tag.
+
+**Arguments**
+
+- `tag` - The name of the tag.
+
+--------------------------------------------
+
+## **Migrate**
+**Syntax**
+
+`/migrate`
+
+**Description**
+
+Migrate data from other providers.
+
+**Arguments**
+
+None
+
+--------------------------------------------
