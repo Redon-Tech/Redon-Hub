@@ -82,6 +82,9 @@ class deleteTagSelect(ui.Select):
         )
 
     async def callback(self, interaction: Interaction):
+        await interaction.response.defer()
+        deletedTags = []
+        failedTags = []
         for tag in self.values:
             tag_name = tag
             try:
@@ -92,27 +95,31 @@ class deleteTagSelect(ui.Select):
 
             try:
                 await delete_tag(int(tag))
-                await interaction.response.edit_message(
-                    embed=Embed(
-                        title="Tag Deleted",
-                        description=f"{tag_name} has been deleted!",
-                        colour=interaction.user.colour,
-                        timestamp=utils.utcnow(),
-                    ).set_footer(text=f"Redon Hub • Version {self.bot.version}"),
-                    view=None,
-                )
+                deletedTags.append(tag_name)
             except Exception as e:
                 _log.error(e)
-                await interaction.response.edit_message(
-                    embed=Embed(
-                        title="Error",
-                        description=f"An unknown error has occured during deletion of {tag_name}.\nHowever, it is possible the tag(s) were still deleted, you can check this using `/tags`.",
-                        colour=interaction.user.colour,
-                        timestamp=utils.utcnow(),
-                    ).set_footer(text=f"Redon Hub • Version {self.bot.version}"),
-                    view=None,
-                )
-                return
+                failedTags.append(tag_name)
+
+        if len(deletedTags) > 0:
+            await interaction.edit_original_response(
+                embed=Embed(
+                    title="Tag Deleted",
+                    description=f"Succesfully deleted:\n{', '.join(deletedTags)}",
+                    colour=interaction.user.colour,
+                    timestamp=utils.utcnow(),
+                ).set_footer(text=f"Redon Hub • Version {self.bot.version}"),
+                view=None,
+            )
+
+        if len(failedTags) > 0:
+            await interaction.followup.send(
+                embed=Embed(
+                    title="Error",
+                    description=f"Failed to delete:\n{', '.join(failedTags)}",
+                    colour=interaction.user.colour,
+                    timestamp=utils.utcnow(),
+                ).set_footer(text=f"Redon Hub • Version {self.bot.version}"),
+            )
 
 
 class deleteTagView(ui.View):

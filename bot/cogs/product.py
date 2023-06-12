@@ -27,6 +27,7 @@ from bot.data import (
     Product,
 )
 from bot import config
+from bot.utils import ConfirmView
 from typing import Optional
 import logging
 import re
@@ -317,7 +318,6 @@ class createProduct(ui.Modal, title="Create Product"):
                 ),
             )
         else:
-            await interaction.response.defer()
             self.values = []
             await interaction.response.send_message(
                 embed=Embed(
@@ -330,66 +330,67 @@ class createProduct(ui.Modal, title="Create Product"):
             await promptCreateProductChooseAttachments(self, interaction)
 
 
-class deleteProductSelect(ui.Select):
-    def __init__(self, products, **kwargs):
-        options = []
-        for kwarg in kwargs:
-            setattr(self, kwarg, kwargs[kwarg])
+# class deleteProductSelect(ui.Select):
+#     def __init__(self, products, **kwargs):
+#         options = []
+#         for kwarg in kwargs:
+#             setattr(self, kwarg, kwargs[kwarg])
 
-        for product in products:
-            options.append(SelectOption(label=product.name, value=product.id))
+#         for product in products:
+#             options.append(SelectOption(label=product.name, value=product.id))
 
-        super().__init__(
-            placeholder="Select product",
-            min_values=1,
-            max_values=len(options),
-            options=options,
-        )
+#         super().__init__(
+#             placeholder="Select product",
+#             min_values=1,
+#             max_values=len(options),
+#             options=options,
+#         )
 
-    async def callback(self, interaction: Interaction):
-        deletedProducts = []
-        failedProducts = []
-        for product in self.values:
-            product_name = product
-            try:
-                product_data = await get_product(int(product))
-                product_name = product_data.name
-            except Exception as e:
-                _log.error(e)
+#     async def callback(self, interaction: Interaction):
+#         await interaction.response.defer()
+#         deletedProducts = []
+#         failedProducts = []
+#         for product in self.values:
+#             product_name = product
+#             try:
+#                 product_data = await get_product(int(product))
+#                 product_name = product_data.name
+#             except Exception as e:
+#                 _log.error(e)
 
-            try:
-                await delete_product(int(product))
-                deletedProducts.append(product_name)
-            except Exception as e:
-                _log.error(e)
-                failedProducts.append(product_name)
+#             try:
+#                 await delete_product(int(product))
+#                 deletedProducts.append(product_name)
+#             except Exception as e:
+#                 _log.error(e)
+#                 failedProducts.append(product_name)
 
-        if len(deletedProducts) > 0:
-            await interaction.response.send_message(
-                embed=Embed(
-                    title="Product Deleted",
-                    description=f"Succesfully deleted:\n{', '.join(deletedProducts)}",
-                    colour=interaction.user.colour,
-                    timestamp=utils.utcnow(),
-                ).set_footer(text=f"Redon Hub • Version {self.bot.version}"),
-                view=None,
-            )
+#         if len(deletedProducts) > 0:
+#             await interaction.edit_original_response(
+#                 embed=Embed(
+#                     title="Product Deleted",
+#                     description=f"Succesfully deleted:\n{', '.join(deletedProducts)}",
+#                     colour=interaction.user.colour,
+#                     timestamp=utils.utcnow(),
+#                 ).set_footer(text=f"Redon Hub • Version {self.bot.version}"),
+#                 view=None,
+#             )
 
-        if len(failedProducts) > 0:
-            await interaction.followup.send(
-                embed=Embed(
-                    title="Error",
-                    description=f"Failed to delete:\n{', '.join(failedProducts)}",
-                    colour=interaction.user.colour,
-                    timestamp=utils.utcnow(),
-                ).set_footer(text=f"Redon Hub • Version {self.bot.version}"),
-            )
+#         if len(failedProducts) > 0:
+#             await interaction.followup.send(
+#                 embed=Embed(
+#                     title="Error",
+#                     description=f"Failed to delete:\n{', '.join(failedProducts)}",
+#                     colour=interaction.user.colour,
+#                     timestamp=utils.utcnow(),
+#                 ).set_footer(text=f"Redon Hub • Version {self.bot.version}"),
+#             )
 
 
-class deleteProductView(ui.View):
-    def __init__(self, products, **kwargs):
-        super().__init__()
-        self.add_item(deleteProductSelect(products, **kwargs))
+# class deleteProductView(ui.View):
+#     def __init__(self, products, **kwargs):
+#         super().__init__()
+#         self.add_item(deleteProductSelect(products, **kwargs))
 
 
 async def sendUpdatedProductFiles(self, product: Product):
@@ -942,20 +943,175 @@ class ProductCog(Cog):
         await interaction.response.send_modal(createProduct(bot=self.bot))
 
     @product_admin.command(name="delete", description="Delete a product")
-    async def delete_product_command(self, interaction: Interaction):
-        await interaction.response.defer()
+    async def delete_product_command(self, interaction: Interaction, product_name: str):
+        try:
+            product = await get_product_by_name(product_name)
+        except Exception:
+            product = None
 
-        products = await get_products()
+        if product:
+            view = ConfirmView(interaction.user)
+            await interaction.response.send_message(
+                embed=Embed(
+                    title="Delete Product",
+                    description=f"Are you sure you want to delete `{product_name}`?",
+                    colour=interaction.user.colour,
+                    timestamp=utils.utcnow(),
+                ).set_footer(text=f"Redon Hub • Version {self.bot.version}"),
+                view=view,
+            )
 
-        await interaction.followup.send(
-            embed=Embed(
-                title="Delete Product",
-                description="Select the product you want to delete",
-                colour=interaction.user.colour,
-                timestamp=utils.utcnow(),
-            ).set_footer(text=f"Redon Hub • Version {self.bot.version}"),
-            view=deleteProductView(products, bot=self.bot),
-        )
+            await view.wait()
+
+            if view.value == True:
+                try:
+                    await delete_product(product.id)
+                    await interaction.edit_original_response(
+                        embed=Embed(
+                            title="Deleted Product",
+                            description=f"I have deleted `{product_name}`.",
+                            colour=interaction.user.colour,
+                            timestamp=utils.utcnow(),
+                        ).set_footer(text=f"Redon Hub • Version {self.bot.version}"),
+                        view=None,
+                    )
+                except Exception as e:
+                    await interaction.edit_original_response(
+                        embed=Embed(
+                            title="Error",
+                            description=f"I was unable to delete `{product_name}`. Error: {e}",
+                            colour=interaction.user.colour,
+                            timestamp=utils.utcnow(),
+                        ).set_footer(text=f"Redon Hub • Version {self.bot.version}"),
+                        view=None,
+                    )
+            else:
+                await interaction.edit_original_response(
+                    embed=Embed(
+                        title="Cancelled",
+                        description="I have cancelled the action.",
+                        colour=interaction.user.colour,
+                        timestamp=utils.utcnow(),
+                    ).set_footer(text=f"Redon Hub • Version {self.bot.version}"),
+                    view=None,
+                )
+        else:
+            await interaction.response.send_message(
+                embed=Embed(
+                    title="Not Found",
+                    description=f"I was unable to find `{product_name}`.",
+                    colour=interaction.user.colour,
+                    timestamp=utils.utcnow(),
+                ).set_footer(text=f"Redon Hub • Version {self.bot.version}")
+            )
+
+        # products = await get_products()
+
+        # await interaction.followup.send(
+        #     embed=Embed(
+        #         title="Delete Product",
+        #         description="Select the product you want to delete",
+        #         colour=interaction.user.colour,
+        #         timestamp=utils.utcnow(),
+        #     ).set_footer(text=f"Redon Hub • Version {self.bot.version}"),
+        #     view=deleteProductView(products, bot=self.bot),
+        # )
+
+    @delete_product_command.autocomplete("product_name")
+    async def update_product_command_autocomplete(
+        self, interaction: Interaction, current_product_name: str
+    ):
+        try:
+            products = await get_products()
+        except Exception:
+            products = []
+
+        return [
+            app_commands.Choice(name=product.name, value=product.name)
+            for product in products
+            if current_product_name.lower() in product.name.lower()
+        ]
+
+    @product_admin.command(name="clear", description="Delete all products")
+    async def clear_products_command(self, interaction: Interaction):
+        if interaction.user.id not in config.Bot.Owners:
+            await interaction.response.send_message(
+                embed=Embed(
+                    title="Error",
+                    description="You are not allowed to use this command.",
+                    colour=interaction.user.colour,
+                    timestamp=utils.utcnow(),
+                ).set_footer(text=f"Redon Hub • Version {self.bot.version}"),
+            )
+            return
+
+        try:
+            products = await get_products()
+        except Exception:
+            products = []
+
+        if products:
+            view = ConfirmView(interaction.user)
+            await interaction.response.send_message(
+                embed=Embed(
+                    title="Clear Products",
+                    description=f"Are you sure you want to delete all products?\n\n**Warning:** This action is irreversible.",
+                    colour=interaction.user.colour,
+                    timestamp=utils.utcnow(),
+                ).set_footer(text=f"Redon Hub • Version {self.bot.version}"),
+                view=view,
+            )
+
+            await view.wait()
+
+            await interaction.edit_original_response(
+                embed=Embed(
+                    title="Clearing Products",
+                    description=f"Please wait...",
+                    colour=interaction.user.colour,
+                    timestamp=utils.utcnow(),
+                ).set_footer(text=f"Redon Hub • Version {self.bot.version}"),
+                view=None,
+            )
+
+            if view.value == True:
+                for product in products:
+                    try:
+                        await delete_product(product.id)
+                    except Exception as e:
+                        _log.error(e)
+                        await interaction.channel.send(
+                            f"I was unable to delete `{product.name}`"
+                        )
+
+                await interaction.edit_original_response(
+                    embed=Embed(
+                        title="Cleared Products",
+                        description=f"I have deleted all products.",
+                        colour=interaction.user.colour,
+                        timestamp=utils.utcnow(),
+                    ).set_footer(text=f"Redon Hub • Version {self.bot.version}"),
+                    view=None,
+                )
+            else:
+                await interaction.edit_original_response(
+                    embed=Embed(
+                        title="Cancelled",
+                        description="I have cancelled the action.",
+                        colour=interaction.user.colour,
+                        timestamp=utils.utcnow(),
+                    ).set_footer(text=f"Redon Hub • Version {self.bot.version}"),
+                    view=None,
+                )
+        else:
+            await interaction.response.send_message(
+                embed=Embed(
+                    title="Not Found",
+                    description=f"I was unable to find any products.",
+                    colour=interaction.user.colour,
+                    timestamp=utils.utcnow(),
+                ).set_footer(text=f"Redon Hub • Version {self.bot.version}")
+            )
 
     @product_admin.command(name="update", description="Update a product")
     async def update_product_command(self, interaction: Interaction, product_name: str):
