@@ -2,10 +2,12 @@
     File: /bot/utils/confirmView.py
     Usage: A view for confirming items
 """
-from discord import ui, Interaction, ButtonStyle
+from typing import Any, Coroutine, Optional
+from discord import ui, Interaction, ButtonStyle, Message
+
 
 class ConfirmView(ui.View):
-    def __init__(self, user, *, timeout=60.0):
+    def __init__(self, user, *, timeout: float = 60.0):
         self.user = user
         super().__init__(timeout=timeout)
         self.value = None
@@ -22,3 +24,13 @@ class ConfirmView(ui.View):
 
     async def interaction_check(self, interaction: Interaction):
         return interaction.user == self.user
+
+
+class JumpToMessageView(ui.View):
+    def __init__(self, message: Message, *, timeout: float = 180):
+        super().__init__(timeout=timeout)
+        self.add_item(
+            ui.Button(
+                label="Jump to Message", style=ButtonStyle.link, url=message.jump_url
+            )
+        )

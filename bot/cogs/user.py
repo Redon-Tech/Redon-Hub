@@ -10,7 +10,7 @@ from bot.data import (
     get_product_by_name,
     get_products,
 )
-from bot.utils import ConfirmView, handlePurchase, handleRevoke
+from bot.utils import ConfirmView, JumpToMessageView, handlePurchase, handleRevoke
 from typing import Optional
 import logging
 
@@ -104,7 +104,7 @@ class User(Cog):
                 if interaction.user.dm_channel is None:
                     await interaction.user.create_dm()
 
-                await interaction.user.dm_channel.send(
+                message = await interaction.user.dm_channel.send(
                     embed=Embed(
                         title="Product Retrieved",
                         description=f"Thanks for purchasing from us! You can find the information link below.",
@@ -126,7 +126,8 @@ class User(Cog):
                         description=f"Please check your DMs for the product!",
                         colour=interaction.user.colour,
                         timestamp=utils.utcnow(),
-                    ).set_footer(text=f"Redon Hub • Version {self.bot.version}")
+                    ).set_footer(text=f"Redon Hub • Version {self.bot.version}"),
+                    view=JumpToMessageView(message),
                 )
             except Forbidden:
                 await interaction.followup.send(
