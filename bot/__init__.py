@@ -11,7 +11,7 @@ import logging
 import os
 
 _log = logging.getLogger(__name__)
-__version__ = "1.0-RC.5"
+__version__ = "1.0-RC.FINAL"
 
 
 class Bot(BotBase):
