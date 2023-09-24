@@ -4,7 +4,7 @@
 """
 from discord.ext.commands import Cog
 from discord import app_commands, Interaction, Embed, utils
-from fastapi import FastAPI, HTTPException, Depends, WebSocket, Security
+from fastapi import FastAPI, HTTPException, Depends, WebSocket, Security, status
 from fastapi.security.api_key import APIKeyHeader, APIKey
 from starlette.responses import RedirectResponse
 from bot import config
@@ -46,7 +46,7 @@ Redon Hub is a product delivery system (A.K.A. hub) for Roblox. This bot is [ope
 * Products (Fully Implemented)
 * Tags (Fully Implemented)
 
-[Official Documentation](https://hub.redon.tech/docs)
+[Official Documentation](https://hub.redon.tech/)
 """
 app = FastAPI(
     title="Redon Hub",
@@ -150,6 +150,14 @@ class APIStatus(BaseModel):
 @app.get("/")
 async def root() -> APIStatus:
     """
+    Redirections to /v1
+    """
+    return RedirectResponse(url="/v1")
+
+
+@app.get("/v1")
+async def v1() -> APIStatus:
+    """
     Returns the status of the API and database as well as the version the bot is running.
     """
     return APIStatus(
@@ -183,12 +191,6 @@ async def root() -> APIStatus:
 
 
 ## Users
-@app.get("/v1")
-async def v1root() -> APIStatus:
-    """
-    Redirections to /
-    """
-    return RedirectResponse(url="/")
 
 
 @app.get("/v1/cart_enabled", dependencies=[Depends(api_auth)])
@@ -269,7 +271,10 @@ async def users_get_user_owns(
 
 
 @app.post(
-    "/v1/users/{user_id}/{product_id}", dependencies=[Depends(api_auth)], tags=["Users"]
+    "/v1/users/{user_id}/{product_id}",
+    dependencies=[Depends(api_auth)],
+    tags=["Users"],
+    status_code=status.HTTP_202_ACCEPTED,
 )
 async def users_give_user_product(
     user_id: int,
@@ -382,7 +387,10 @@ async def users_revoke_user_product(
 
 
 @app.post(
-    "/v1/users/{user_id}/verify/key", dependencies=[Depends(api_auth)], tags=["Users"]
+    "/v1/users/{user_id}/verify/key",
+    dependencies=[Depends(api_auth)],
+    tags=["Users"],
+    status_code=status.HTTP_201_CREATED,
 )
 async def users_post_verify(user_id: int) -> Verification:
     """
@@ -450,7 +458,12 @@ async def products_get_product(product_id: Union[int, str]) -> ProductDisplay:
     return ProductDisplay(**product.dict())
 
 
-@app.post("/v1/products", dependencies=[Depends(api_auth)], tags=["Products"])
+@app.post(
+    "/v1/products",
+    dependencies=[Depends(api_auth)],
+    tags=["Products"],
+    status_code=status.HTTP_201_CREATED,
+)
 async def products_post(product: Product) -> ProductDisplay:
     """
     Creates a new product.
@@ -566,7 +579,12 @@ async def tags_get_tag(tag_id: int) -> TagDisplay:
     return TagDisplay(**tag.dict())
 
 
-@app.post("/v1/tags", dependencies=[Depends(api_auth)], tags=["Tags"])
+@app.post(
+    "/v1/tags",
+    dependencies=[Depends(api_auth)],
+    tags=["Tags"],
+    status_code=status.HTTP_201_CREATED,
+)
 async def tags_post(tag: Tag) -> TagDisplay:
     """
     Creates a new tag.

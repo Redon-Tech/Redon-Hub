@@ -2,7 +2,7 @@
     "openapi": "3.0.2",
     "info": {
         "title": "Redon Hub",
-        "description": "\nRedon Hub is a product delivery system (A.K.A. hub) for Roblox. This bot is [open source](https://github.com/Redon-Tech/Redon-Hub)!\n\n* Users (Fully Implemented)\n* Products (Fully Implemented)\n* Tags (Fully Implemented)\n",
+        "description": "\nRedon Hub is a product delivery system (A.K.A. hub) for Roblox. This bot is [open source](https://github.com/Redon-Tech/Redon-Hub)!\n\n* Users (Fully Implemented)\n* Products (Fully Implemented)\n* Tags (Fully Implemented)\n\n[Official Documentation](https://hub.redon.tech/)\n",
         "contact": {
             "name": "Parker",
             "url": "https://parker02311.redon.tech/contact-me.html",
@@ -12,13 +12,13 @@
             "name": "MIT",
             "url": "https://mit-license.org/"
         },
-        "version": "1.0-RC.3"
+        "version": "1.0-RC.6"
     },
     "paths": {
         "/": {
             "get": {
                 "summary": "Root",
-                "description": "Returns the status of the API and database as well as the version the bot is running.",
+                "description": "Redirections to /v1",
                 "operationId": "root__get",
                 "responses": {
                     "200": {
@@ -36,9 +36,9 @@
         },
         "/v1": {
             "get": {
-                "summary": "V1Root",
-                "description": "Redirections to /",
-                "operationId": "v1root_v1_get",
+                "summary": "V1",
+                "description": "Returns the status of the API and database as well as the version the bot is running.",
+                "operationId": "v1_v1_get",
                 "responses": {
                     "200": {
                         "description": "Successful Response",
@@ -293,7 +293,7 @@
                     }
                 ],
                 "responses": {
-                    "200": {
+                    "202": {
                         "description": "Successful Response",
                         "content": {
                             "application/json": {
@@ -413,7 +413,7 @@
                     }
                 ],
                 "responses": {
-                    "200": {
+                    "201": {
                         "description": "Successful Response",
                         "content": {
                             "application/json": {
@@ -489,7 +489,7 @@
                     "required": true
                 },
                 "responses": {
-                    "200": {
+                    "201": {
                         "description": "Successful Response",
                         "content": {
                             "application/json": {
@@ -737,7 +737,7 @@
                     "required": true
                 },
                 "responses": {
-                    "200": {
+                    "201": {
                         "description": "Successful Response",
                         "content": {
                             "application/json": {
@@ -1216,6 +1216,13 @@
                         "default": "key123"
                     }
                 }
+            }
+        },
+        "securitySchemes": {
+            "APIKeyHeader": {
+                "type": "apiKey",
+                "in": "header",
+                "name": "Authorization"
             }
         }
     },
