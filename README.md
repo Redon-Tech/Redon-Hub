@@ -2,10 +2,10 @@
 
 <div align="center">
   
-  [![Discord](https://img.shields.io/discord/536555061510144020?label=discord&logo=discord&style=for-the-badge)](https://discord.gg/Eb384Xw)
-  [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg?style=for-the-badge)](https://github.com/psf/black)
-  [![GitHub](https://img.shields.io/github/license/redon-tech/Redon-Hub?style=for-the-badge)](https://mit-license.org/)
-  [![Latest Release](https://img.shields.io/github/v/release/redon-tech/Redon-Hub?style=for-the-badge)](https://github.com/Redon-Tech/Redon-Hub/releases)
+  [![Discord](https://img.shields.io/discord/536555061510144020?label=discord&logo=discord&logoColor=rgb(255,255,255)&labelColor=302d41&style=for-the-badge)](https://discord.gg/Eb384Xw)
+  [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg?logo=devdotto&logoColor=rgb(255,255,255)&labelColor=302d41&style=for-the-badge)](https://github.com/psf/black)
+  [![GitHub](https://img.shields.io/github/license/redon-tech/Redon-Hub?labelColor=302d41&style=for-the-badge)](https://mit-license.org/)
+  [![Latest Release](https://img.shields.io/github/v/release/redon-tech/Redon-Hub?logo=robloxstudio&logoColor=rgb(255,255,255)&labelColor=302d41&style=for-the-badge)](https://github.com/Redon-Tech/Redon-Hub/releases)
   
 </div>
 
