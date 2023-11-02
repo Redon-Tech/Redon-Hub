@@ -21,8 +21,8 @@ jobs:
       
       - name: Install Foreman
         uses: Roblox/setup-foreman@v2
-        working-directory: roblox
         with:
+          working-directory: roblox
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create builds directory
