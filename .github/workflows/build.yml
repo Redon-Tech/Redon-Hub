@@ -30,10 +30,10 @@ jobs:
         run: rojo build roblox/cyborg.project.json -o roblox/builds/cyborg.rbxl
 
       - name: Build Catppuccin Latte
-        run: rojo build roblox/catppuccino-latte.project.json -o roblox/builds/catppuccino-latte.rbxl
+        run: rojo build roblox/catppuccin-latte.project.json -o roblox/builds/catppuccin-latte.rbxl
 
       - name: Build Catppuccino Mocha
-        run: rojo build roblox/catppuccino-mocha.project.json -o roblox/builds/catppuccino-mocha.rbxl
+        run: rojo build roblox/catppuccin-mocha.project.json -o roblox/builds/catppuccin-mocha.rbxl
 
       - name: Upload Place Files
         run: gh release upload ${{ github.ref }} roblox/builds/*.rbxl
