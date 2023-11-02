@@ -11,7 +11,7 @@ generator client {
 
 model User {
   // When creating a user ALWAYS pass a id, this does not have a default
-  id         Int      @id
+  id         BigInt   @id
   createdAt  DateTime @default(now())
   discordId  BigInt   @default(0)
   verifiedAt DateTime @default(now())
