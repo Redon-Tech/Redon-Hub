@@ -24,16 +24,16 @@ jobs:
         run: mkdir -p roblox/builds
 
       - name: Build Default
-        run: rojo build roblox/default.project.json -o roblox/builds/default.rbxl
+        run: rojo build roblox/default.project.json -o roblox/builds/hub-default.rbxl
 
       - name: Build Cyborg
-        run: rojo build roblox/cyborg.project.json -o roblox/builds/cyborg.rbxl
+        run: rojo build roblox/cyborg.project.json -o roblox/builds/hub-cyborg.rbxl
 
       - name: Build Catppuccin Latte
-        run: rojo build roblox/catppuccin-latte.project.json -o roblox/builds/catppuccin-latte.rbxl
+        run: rojo build roblox/catppuccin-latte.project.json -o roblox/builds/hub-catppuccin-latte.rbxl
 
       - name: Build Catppuccino Mocha
-        run: rojo build roblox/catppuccin-mocha.project.json -o roblox/builds/catppuccin-mocha.rbxl
+        run: rojo build roblox/catppuccin-mocha.project.json -o roblox/builds/hub-catppuccin-mocha.rbxl
 
       - name: Upload Place Files
         run: gh release upload ${{ github.ref_name }} roblox/builds/*.rbxl
