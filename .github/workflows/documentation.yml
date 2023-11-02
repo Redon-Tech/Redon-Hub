@@ -6,8 +6,8 @@ on:
       name:
         description: "MkDocs Deploy"
   push:
-    branches:
-      - main
+    paths:
+      - 'docs/**'
 
 jobs:
   build:
