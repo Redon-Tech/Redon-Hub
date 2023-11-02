@@ -6,7 +6,7 @@ on:
       name:
         description: "Build Place Files"
   release:
-    types: [created]
+    types: [published]
 
 jobs:
   build:
