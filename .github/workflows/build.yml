@@ -1,0 +1,45 @@
+name: Build Place Files
+
+on:
+  workflow_dispatch:
+    inputs:
+      name:
+        description: "Build Place Files"
+  release:
+    types: [created]
+
+jobs:
+  build:
+    name: Build Place Files
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      
+      - name: Install Foreman
+        uses: Roblox/setup-foreman@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create builds directory
+        run: mkdir -p roblox/builds
+
+      - name: Build Default
+        run: rojo build roblox/default.project.json -o roblox/builds/default.rbxl
+
+      - name: Build Cyborg
+        run: rojo build roblox/cyborg.project.json -o roblox/builds/cyborg.rbxl
+
+      - name: Build Catppuccin Latte
+        run: rojo build roblox/catppuccino-latte.project.json -o roblox/builds/catppuccino-latte.rbxl
+
+      - name: Build Catppuccino Mocha
+        run: rojo build roblox/catppuccino-mocha.project.json -o roblox/builds/catppuccino-mocha.rbxl
+
+      - name: Upload Place Files
+        run: gh release upload ${{ github.ref }} roblox/builds/*.rbxl
+        env:
+          GITHUB_TOKEN: ${{ github.TOKEN }}
