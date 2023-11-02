@@ -50,16 +50,16 @@ Now that we have our `config.json` file we can start configuring it. Below is a 
 ```
 
 - Bot:
-    - Prefix: The prefix the bot will use for commands. (Unused)
-    - Guilds: A list of guilds the slash commands will be in, please note the first guild in this list will also be the guild the bot will use for customer roles and the purchase channel.
+    - Prefix: ~~The prefix the bot will use for commands.~~ **(Unused)**
+    - Guilds: A list of guilds the slash commands will be in.[^1]
     - Owners: A list of user IDs that will be able to use owner commands.
     - Activity:
         - Presence: The presence the bot will use. Supports the following variables:
             - `{users:,}`: The number of users in the database.
             - `{guilds:,}`: The number of guilds the bot is in.
             - `{version}`: The version of the bot.
-            - `{prefix}`: The prefix of the bot.
-        - Status: The status the bot will use.
+            - `{prefix}`: ~~The prefix of the bot.~~ **(Unused)**
+        - Status: The status the bot will use. [Learn More](https://discordpy.readthedocs.io/en/stable/api.html#discord.Status "discord.Status")
 - Logging:
     - PurchasesChannel: The channel ID of the channel the bot will log purchases in.
     - GlobalCustomerRole: The role ID of the role the bot will give to customers of all products.
@@ -80,3 +80,5 @@ token=this_is_your_bot_token
 ```
 
 [Next: Starting the Bot](/setup/bot/running){ .md-button .md-button--primary }
+
+[^1]: The first guild in this list will also be the guild the bot will use for customer roles and the purchase channel.

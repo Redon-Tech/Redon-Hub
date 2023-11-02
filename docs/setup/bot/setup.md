@@ -26,6 +26,8 @@ Before we get to setting up our database and configuring the bot we must first i
 
     python -m pip install pipenv
 
+    python -m pipenv install
+
     python -m pipenv shell
     ```
 === "Linux"
@@ -34,10 +36,12 @@ Before we get to setting up our database and configuring the bot we must first i
 
     pip install pipenv
 
+    pipenv install
+
     pipenv shell
     ```
 
-4. Install the requirements
+4. Install the requirements (only if the pipenv does not automatically install them)
 === "Windows"
     ```bash
     python -m pip install -U -r requirements.txt

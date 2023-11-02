@@ -18,6 +18,15 @@ nav:
       - Commands: guide/commands.md
       - API: guide/api.md
 
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/Redon-Tech
+    - icon: fontawesome/brands/discord
+      link: https://discord.gg/Eb384Xw
+    - icon: fontawesome/brands/youtube
+      link: https://www.youtube.com/parker02311
+
 theme:
   features:
     - navigation.instant
@@ -54,11 +63,13 @@ markdown_extensions:
   - pymdownx.superfences
   - pymdownx.snippets
   - pymdownx.details
+  - pymdownx.tilde
   - admonition
   - tables
   - def_list
   - attr_list
   - md_in_html
+  - footnotes
   - pymdownx.tabbed:
       alternate_style: true
   - pymdownx.tasklist:

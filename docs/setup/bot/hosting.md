@@ -13,7 +13,7 @@ If you host a pterodactyl panel you can download our egg for easy installation. 
 **This is the easiest other then Redon Hosting**
 
 ## Recommended Hosting Providers
-- [Redon Hosting](https://billing.redon.tech/) (Free with limited slots, paid plans available)
+- [Redon Hosting](https://billing.redon.tech/) (Free[^1], Paid Plans Available)
 - [PebbleHost](https://pebblehost.com/bot-hosting) (Cheap, but does not provide preinstall for Redon Hub)
 
 (I will add more as I find them, if you know of any please let me know in our Discord server)
@@ -30,3 +30,7 @@ All of these require debit/credit cards to use, most do not accept prepaid cards
 - [Azure](https://azure.microsoft.com/)
 - [Onetsolutions](https://onetsolutions.net/) (Cheap, but limited English support)
 - [Find More](https://www.vpsbenchmarks.com/compare)
+
+[^1]:
+    Due to limited resources, we are only able to provide free hosting to a limited number of people.  
+    Free servers also come with very limited resources and should not be used for large servers.
