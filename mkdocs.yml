@@ -14,7 +14,11 @@ nav:
         - Configuration: setup/bot/configuration.md
         - Starting the Bot: setup/bot/running.md
         - Hosting: setup/bot/hosting.md
+      - Roblox:
+        - setup/roblox/setup.md
+        - Configuration: setup/roblox/configuration.md
     - Guide:
+      - Themes: guide/themes.md
       - Commands: guide/commands.md
       - API: guide/api.md
 

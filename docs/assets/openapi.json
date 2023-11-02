@@ -1,5 +1,5 @@
 {
-    "openapi": "3.0.2",
+    "openapi": "3.1.0",
     "info": {
         "title": "Redon Hub",
         "description": "\nRedon Hub is a product delivery system (A.K.A. hub) for Roblox. This bot is [open source](https://github.com/Redon-Tech/Redon-Hub)!\n\n* Users (Fully Implemented)\n* Products (Fully Implemented)\n* Tags (Fully Implemented)\n\n[Official Documentation](https://hub.redon.tech/)\n",
@@ -12,7 +12,7 @@
             "name": "MIT",
             "url": "https://mit-license.org/"
         },
-        "version": "1.0-RC.FINAL"
+        "version": "1.0.0"
     },
     "paths": {
         "/": {
@@ -64,8 +64,8 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "title": "Response Cart Enabled V1 Cart Enabled Get",
-                                    "type": "boolean"
+                                    "type": "boolean",
+                                    "title": "Response Cart Enabled V1 Cart Enabled Get"
                                 }
                             }
                         }
@@ -92,11 +92,11 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "title": "Response Users Get V1 Users Get",
-                                    "type": "object",
                                     "additionalProperties": {
                                         "$ref": "#/components/schemas/UserDisplay"
-                                    }
+                                    },
+                                    "type": "object",
+                                    "title": "Response Users Get V1 Users Get"
                                 }
                             }
                         }
@@ -117,25 +117,30 @@
                 "summary": "Users Get User",
                 "description": "Gets a specific user by their id or discordId.",
                 "operationId": "users_get_user_v1_users__user_id__get",
+                "security": [
+                    {
+                        "APIKeyHeader": []
+                    }
+                ],
                 "parameters": [
                     {
+                        "name": "user_id",
+                        "in": "path",
                         "required": true,
                         "schema": {
-                            "title": "User Id",
-                            "type": "integer"
-                        },
-                        "name": "user_id",
-                        "in": "path"
+                            "type": "integer",
+                            "title": "User Id"
+                        }
                     },
                     {
+                        "name": "discordId",
+                        "in": "query",
                         "required": false,
                         "schema": {
-                            "title": "Discordid",
                             "type": "boolean",
-                            "default": false
-                        },
-                        "name": "discordId",
-                        "in": "query"
+                            "default": false,
+                            "title": "Discordid"
+                        }
                     }
                 ],
                 "responses": {
@@ -159,12 +164,7 @@
                             }
                         }
                     }
-                },
-                "security": [
-                    {
-                        "APIKeyHeader": []
-                    }
-                ]
+                }
             }
         },
         "/v1/users/{user_id}/owns/{product_id}": {
@@ -177,18 +177,19 @@
                 "operationId": "users_get_user_owns_v1_users__user_id__owns__product_id__get",
                 "parameters": [
                     {
+                        "name": "user_id",
+                        "in": "path",
                         "required": true,
                         "schema": {
-                            "title": "User Id",
-                            "type": "integer"
-                        },
-                        "name": "user_id",
-                        "in": "path"
+                            "type": "integer",
+                            "title": "User Id"
+                        }
                     },
                     {
+                        "name": "product_id",
+                        "in": "path",
                         "required": true,
                         "schema": {
-                            "title": "Product Id",
                             "anyOf": [
                                 {
                                     "type": "integer"
@@ -196,20 +197,19 @@
                                 {
                                     "type": "string"
                                 }
-                            ]
-                        },
-                        "name": "product_id",
-                        "in": "path"
+                            ],
+                            "title": "Product Id"
+                        }
                     },
                     {
+                        "name": "discordId",
+                        "in": "query",
                         "required": false,
                         "schema": {
-                            "title": "Discordid",
                             "type": "boolean",
-                            "default": false
-                        },
-                        "name": "discordId",
-                        "in": "query"
+                            "default": false,
+                            "title": "Discordid"
+                        }
                     }
                 ],
                 "responses": {
@@ -218,8 +218,8 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "title": "Response Users Get User Owns V1 Users  User Id  Owns  Product Id  Get",
-                                    "type": "boolean"
+                                    "type": "boolean",
+                                    "title": "Response Users Get User Owns V1 Users  User Id  Owns  Product Id  Get"
                                 }
                             }
                         }
@@ -245,20 +245,26 @@
                 "summary": "Users Give User Product",
                 "description": "Gives a user a specific product, please note this does not increment the purchases counter on the product by default you must enable it.",
                 "operationId": "users_give_user_product_v1_users__user_id___product_id__post",
+                "security": [
+                    {
+                        "APIKeyHeader": []
+                    }
+                ],
                 "parameters": [
                     {
+                        "name": "user_id",
+                        "in": "path",
                         "required": true,
                         "schema": {
-                            "title": "User Id",
-                            "type": "integer"
-                        },
-                        "name": "user_id",
-                        "in": "path"
+                            "type": "integer",
+                            "title": "User Id"
+                        }
                     },
                     {
+                        "name": "product_id",
+                        "in": "path",
                         "required": true,
                         "schema": {
-                            "title": "Product Id",
                             "anyOf": [
                                 {
                                     "type": "integer"
@@ -266,30 +272,29 @@
                                 {
                                     "type": "string"
                                 }
-                            ]
-                        },
-                        "name": "product_id",
-                        "in": "path"
+                            ],
+                            "title": "Product Id"
+                        }
                     },
                     {
-                        "required": false,
-                        "schema": {
-                            "title": "Discordid",
-                            "type": "boolean",
-                            "default": false
-                        },
                         "name": "discordId",
-                        "in": "query"
-                    },
-                    {
+                        "in": "query",
                         "required": false,
                         "schema": {
-                            "title": "Ispurchase",
                             "type": "boolean",
-                            "default": false
-                        },
+                            "default": false,
+                            "title": "Discordid"
+                        }
+                    },
+                    {
                         "name": "isPurchase",
-                        "in": "query"
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean",
+                            "default": false,
+                            "title": "Ispurchase"
+                        }
                     }
                 ],
                 "responses": {
@@ -313,12 +318,7 @@
                             }
                         }
                     }
-                },
-                "security": [
-                    {
-                        "APIKeyHeader": []
-                    }
-                ]
+                }
             },
             "delete": {
                 "tags": [
@@ -327,20 +327,26 @@
                 "summary": "Users Revoke User Product",
                 "description": "Revokes a users product.",
                 "operationId": "users_revoke_user_product_v1_users__user_id___product_id__delete",
+                "security": [
+                    {
+                        "APIKeyHeader": []
+                    }
+                ],
                 "parameters": [
                     {
+                        "name": "user_id",
+                        "in": "path",
                         "required": true,
                         "schema": {
-                            "title": "User Id",
-                            "type": "integer"
-                        },
-                        "name": "user_id",
-                        "in": "path"
+                            "type": "integer",
+                            "title": "User Id"
+                        }
                     },
                     {
+                        "name": "product_id",
+                        "in": "path",
                         "required": true,
                         "schema": {
-                            "title": "Product Id",
                             "anyOf": [
                                 {
                                     "type": "integer"
@@ -348,20 +354,19 @@
                                 {
                                     "type": "string"
                                 }
-                            ]
-                        },
-                        "name": "product_id",
-                        "in": "path"
+                            ],
+                            "title": "Product Id"
+                        }
                     },
                     {
+                        "name": "discordId",
+                        "in": "query",
                         "required": false,
                         "schema": {
-                            "title": "Discordid",
                             "type": "boolean",
-                            "default": false
-                        },
-                        "name": "discordId",
-                        "in": "query"
+                            "default": false,
+                            "title": "Discordid"
+                        }
                     }
                 ],
                 "responses": {
@@ -385,12 +390,7 @@
                             }
                         }
                     }
-                },
-                "security": [
-                    {
-                        "APIKeyHeader": []
-                    }
-                ]
+                }
             }
         },
         "/v1/users/{user_id}/verify/key": {
@@ -401,15 +401,20 @@
                 "summary": "Users Post Verify",
                 "description": "Get a verification key for a user.",
                 "operationId": "users_post_verify_v1_users__user_id__verify_key_post",
+                "security": [
+                    {
+                        "APIKeyHeader": []
+                    }
+                ],
                 "parameters": [
                     {
+                        "name": "user_id",
+                        "in": "path",
                         "required": true,
                         "schema": {
-                            "title": "User Id",
-                            "type": "integer"
-                        },
-                        "name": "user_id",
-                        "in": "path"
+                            "type": "integer",
+                            "title": "User Id"
+                        }
                     }
                 ],
                 "responses": {
@@ -433,12 +438,7 @@
                             }
                         }
                     }
-                },
-                "security": [
-                    {
-                        "APIKeyHeader": []
-                    }
-                ]
+                }
             }
         },
         "/v1/products": {
@@ -455,11 +455,11 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "title": "Response Products Get V1 Products Get",
-                                    "type": "object",
                                     "additionalProperties": {
                                         "$ref": "#/components/schemas/ProductDisplay"
-                                    }
+                                    },
+                                    "type": "object",
+                                    "title": "Response Products Get V1 Products Get"
                                 }
                             }
                         }
@@ -525,11 +525,17 @@
                 "summary": "Products Get Product",
                 "description": "Gets a specific product from the database.",
                 "operationId": "products_get_product_v1_products__product_id__get",
+                "security": [
+                    {
+                        "APIKeyHeader": []
+                    }
+                ],
                 "parameters": [
                     {
+                        "name": "product_id",
+                        "in": "path",
                         "required": true,
                         "schema": {
-                            "title": "Product Id",
                             "anyOf": [
                                 {
                                     "type": "integer"
@@ -537,10 +543,9 @@
                                 {
                                     "type": "string"
                                 }
-                            ]
-                        },
-                        "name": "product_id",
-                        "in": "path"
+                            ],
+                            "title": "Product Id"
+                        }
                     }
                 ],
                 "responses": {
@@ -564,66 +569,7 @@
                             }
                         }
                     }
-                },
-                "security": [
-                    {
-                        "APIKeyHeader": []
-                    }
-                ]
-            },
-            "delete": {
-                "tags": [
-                    "Products"
-                ],
-                "summary": "Products Delete",
-                "description": "Deletes a product.\n\n**CAN NOT BE UNDONE!**",
-                "operationId": "products_delete_v1_products__product_id__delete",
-                "parameters": [
-                    {
-                        "required": true,
-                        "schema": {
-                            "title": "Product Id",
-                            "anyOf": [
-                                {
-                                    "type": "integer"
-                                },
-                                {
-                                    "type": "string"
-                                }
-                            ]
-                        },
-                        "name": "product_id",
-                        "in": "path"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Successful Response",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "title": "Response Products Delete V1 Products  Product Id  Delete",
-                                    "type": "boolean"
-                                }
-                            }
-                        }
-                    },
-                    "422": {
-                        "description": "Validation Error",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/HTTPValidationError"
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "APIKeyHeader": []
-                    }
-                ]
+                }
             },
             "patch": {
                 "tags": [
@@ -632,11 +578,17 @@
                 "summary": "Products Patch",
                 "description": "Updates a product.\n\nThis is a patch meaning you don't have to pass all the data in the product object.",
                 "operationId": "products_patch_v1_products__product_id__patch",
+                "security": [
+                    {
+                        "APIKeyHeader": []
+                    }
+                ],
                 "parameters": [
                     {
+                        "name": "product_id",
+                        "in": "path",
                         "required": true,
                         "schema": {
-                            "title": "Product Id",
                             "anyOf": [
                                 {
                                     "type": "integer"
@@ -644,21 +596,20 @@
                                 {
                                     "type": "string"
                                 }
-                            ]
-                        },
-                        "name": "product_id",
-                        "in": "path"
+                            ],
+                            "title": "Product Id"
+                        }
                     }
                 ],
                 "requestBody": {
+                    "required": true,
                     "content": {
                         "application/json": {
                             "schema": {
                                 "$ref": "#/components/schemas/Product"
                             }
                         }
-                    },
-                    "required": true
+                    }
                 },
                 "responses": {
                     "200": {
@@ -681,12 +632,61 @@
                             }
                         }
                     }
-                },
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Products"
+                ],
+                "summary": "Products Delete",
+                "description": "Deletes a product.\n\n**CAN NOT BE UNDONE!**",
+                "operationId": "products_delete_v1_products__product_id__delete",
                 "security": [
                     {
                         "APIKeyHeader": []
                     }
-                ]
+                ],
+                "parameters": [
+                    {
+                        "name": "product_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "integer"
+                                },
+                                {
+                                    "type": "string"
+                                }
+                            ],
+                            "title": "Product Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "boolean",
+                                    "title": "Response Products Delete V1 Products  Product Id  Delete"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
             }
         },
         "/v1/tags": {
@@ -703,11 +703,11 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "title": "Response Tags Get V1 Tags Get",
-                                    "type": "object",
                                     "additionalProperties": {
                                         "$ref": "#/components/schemas/TagDisplay"
-                                    }
+                                    },
+                                    "type": "object",
+                                    "title": "Response Tags Get V1 Tags Get"
                                 }
                             }
                         }
@@ -773,15 +773,20 @@
                 "summary": "Tags Get Tag",
                 "description": "Gets a specific tag from the database.",
                 "operationId": "tags_get_tag_v1_tags__tag_id__get",
+                "security": [
+                    {
+                        "APIKeyHeader": []
+                    }
+                ],
                 "parameters": [
                     {
+                        "name": "tag_id",
+                        "in": "path",
                         "required": true,
                         "schema": {
-                            "title": "Tag Id",
-                            "type": "integer"
-                        },
-                        "name": "tag_id",
-                        "in": "path"
+                            "type": "integer",
+                            "title": "Tag Id"
+                        }
                     }
                 ],
                 "responses": {
@@ -805,59 +810,7 @@
                             }
                         }
                     }
-                },
-                "security": [
-                    {
-                        "APIKeyHeader": []
-                    }
-                ]
-            },
-            "delete": {
-                "tags": [
-                    "Tags"
-                ],
-                "summary": "Tags Delete",
-                "description": "Deletes a tag.\n\n**CAN NOT BE UNDONE!**",
-                "operationId": "tags_delete_v1_tags__tag_id__delete",
-                "parameters": [
-                    {
-                        "required": true,
-                        "schema": {
-                            "title": "Tag Id",
-                            "type": "integer"
-                        },
-                        "name": "tag_id",
-                        "in": "path"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Successful Response",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "title": "Response Tags Delete V1 Tags  Tag Id  Delete",
-                                    "type": "boolean"
-                                }
-                            }
-                        }
-                    },
-                    "422": {
-                        "description": "Validation Error",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/HTTPValidationError"
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "APIKeyHeader": []
-                    }
-                ]
+                }
             },
             "patch": {
                 "tags": [
@@ -866,26 +819,31 @@
                 "summary": "Tags Patch",
                 "description": "Updates a tag.\n\nThis is a patch meaning you don't have to pass all the data in the tag object.",
                 "operationId": "tags_patch_v1_tags__tag_id__patch",
+                "security": [
+                    {
+                        "APIKeyHeader": []
+                    }
+                ],
                 "parameters": [
                     {
+                        "name": "tag_id",
+                        "in": "path",
                         "required": true,
                         "schema": {
-                            "title": "Tag Id",
-                            "type": "integer"
-                        },
-                        "name": "tag_id",
-                        "in": "path"
+                            "type": "integer",
+                            "title": "Tag Id"
+                        }
                     }
                 ],
                 "requestBody": {
+                    "required": true,
                     "content": {
                         "application/json": {
                             "schema": {
                                 "$ref": "#/components/schemas/Tag"
                             }
                         }
-                    },
-                    "required": true
+                    }
                 },
                 "responses": {
                     "200": {
@@ -908,96 +866,258 @@
                             }
                         }
                     }
-                },
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Tags"
+                ],
+                "summary": "Tags Delete",
+                "description": "Deletes a tag.\n\n**CAN NOT BE UNDONE!**",
+                "operationId": "tags_delete_v1_tags__tag_id__delete",
                 "security": [
                     {
                         "APIKeyHeader": []
                     }
-                ]
+                ],
+                "parameters": [
+                    {
+                        "name": "tag_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "title": "Tag Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "boolean",
+                                    "title": "Response Tags Delete V1 Tags  Tag Id  Delete"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     },
     "components": {
         "schemas": {
             "APIStatus": {
-                "title": "APIStatus",
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "title": "Message"
+                    },
+                    "databaseConnected": {
+                        "type": "boolean",
+                        "title": "Databaseconnected"
+                    },
+                    "version": {
+                        "type": "string",
+                        "title": "Version"
+                    }
+                },
+                "type": "object",
                 "required": [
                     "message",
                     "databaseConnected",
                     "version"
                 ],
-                "type": "object",
-                "properties": {
-                    "message": {
-                        "title": "Message",
-                        "type": "string"
-                    },
-                    "databaseConnected": {
-                        "title": "Databaseconnected",
-                        "type": "boolean"
-                    },
-                    "version": {
-                        "title": "Version",
-                        "type": "string"
-                    }
-                }
+                "title": "APIStatus"
             },
             "HTTPValidationError": {
-                "title": "HTTPValidationError",
-                "type": "object",
                 "properties": {
                     "detail": {
-                        "title": "Detail",
-                        "type": "array",
                         "items": {
                             "$ref": "#/components/schemas/ValidationError"
-                        }
+                        },
+                        "type": "array",
+                        "title": "Detail"
                     }
-                }
+                },
+                "type": "object",
+                "title": "HTTPValidationError"
             },
             "Product": {
-                "title": "Product",
-                "type": "object",
                 "properties": {
                     "name": {
-                        "title": "Name",
-                        "type": "string"
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Name"
                     },
                     "description": {
-                        "title": "Description",
-                        "type": "string"
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Description"
                     },
                     "imageId": {
-                        "title": "Imageid",
-                        "type": "string"
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Imageid"
                     },
                     "price": {
-                        "title": "Price",
-                        "type": "number"
+                        "anyOf": [
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Price"
                     },
                     "productId": {
-                        "title": "Productid",
-                        "type": "number"
+                        "anyOf": [
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Productid"
                     },
                     "stock": {
-                        "title": "Stock",
-                        "type": "integer"
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Stock"
                     },
                     "attachments": {
-                        "title": "Attachments",
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
+                        "anyOf": [
+                            {
+                                "items": {
+                                    "type": "string"
+                                },
+                                "type": "array"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Attachments"
                     },
                     "tags": {
-                        "title": "Tags",
-                        "type": "integer"
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Tags"
                     }
-                }
+                },
+                "type": "object",
+                "title": "Product"
             },
             "ProductDisplay": {
-                "title": "ProductDisplay",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "title": "Id"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Createdat"
+                    },
+                    "name": {
+                        "type": "string",
+                        "title": "Name"
+                    },
+                    "description": {
+                        "type": "string",
+                        "title": "Description"
+                    },
+                    "imageId": {
+                        "type": "string",
+                        "title": "Imageid"
+                    },
+                    "price": {
+                        "type": "integer",
+                        "title": "Price"
+                    },
+                    "productId": {
+                        "type": "integer",
+                        "title": "Productid"
+                    },
+                    "stock": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Stock"
+                    },
+                    "attachments": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "type": "array",
+                        "title": "Attachments"
+                    },
+                    "tags": {
+                        "items": {
+                            "type": "integer"
+                        },
+                        "type": "array",
+                        "title": "Tags"
+                    },
+                    "purchases": {
+                        "type": "integer",
+                        "title": "Purchases"
+                    },
+                    "owners": {
+                        "type": "integer",
+                        "title": "Owners"
+                    }
+                },
+                "type": "object",
                 "required": [
                     "id",
                     "createdAt",
@@ -1006,130 +1126,122 @@
                     "imageId",
                     "price",
                     "productId",
+                    "stock",
                     "attachments",
                     "tags",
                     "purchases",
                     "owners"
                 ],
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "title": "Id",
-                        "type": "integer"
-                    },
-                    "createdAt": {
-                        "title": "Createdat",
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "name": {
-                        "title": "Name",
-                        "type": "string"
-                    },
-                    "description": {
-                        "title": "Description",
-                        "type": "string"
-                    },
-                    "imageId": {
-                        "title": "Imageid",
-                        "type": "string"
-                    },
-                    "price": {
-                        "title": "Price",
-                        "type": "integer"
-                    },
-                    "productId": {
-                        "title": "Productid",
-                        "type": "integer"
-                    },
-                    "stock": {
-                        "title": "Stock",
-                        "type": "integer"
-                    },
-                    "attachments": {
-                        "title": "Attachments",
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
-                    },
-                    "tags": {
-                        "title": "Tags",
-                        "type": "array",
-                        "items": {
-                            "type": "integer"
-                        }
-                    },
-                    "purchases": {
-                        "title": "Purchases",
-                        "type": "integer"
-                    },
-                    "owners": {
-                        "title": "Owners",
-                        "type": "integer"
-                    }
-                }
+                "title": "ProductDisplay"
             },
             "Tag": {
-                "title": "Tag",
-                "type": "object",
                 "properties": {
                     "name": {
-                        "title": "Name",
-                        "type": "string"
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Name"
                     },
                     "color": {
-                        "title": "Color",
-                        "type": "array",
-                        "items": {
-                            "type": "integer"
-                        }
+                        "anyOf": [
+                            {
+                                "items": {
+                                    "type": "integer"
+                                },
+                                "type": "array"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Color"
                     },
                     "textColor": {
-                        "title": "Textcolor",
-                        "type": "array",
-                        "items": {
-                            "type": "integer"
-                        }
+                        "anyOf": [
+                            {
+                                "items": {
+                                    "type": "integer"
+                                },
+                                "type": "array"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Textcolor"
                     }
-                }
+                },
+                "type": "object",
+                "title": "Tag"
             },
             "TagDisplay": {
-                "title": "TagDisplay",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "title": "Id"
+                    },
+                    "name": {
+                        "type": "string",
+                        "title": "Name"
+                    },
+                    "color": {
+                        "items": {
+                            "type": "integer"
+                        },
+                        "type": "array",
+                        "title": "Color"
+                    },
+                    "textColor": {
+                        "items": {
+                            "type": "integer"
+                        },
+                        "type": "array",
+                        "title": "Textcolor"
+                    }
+                },
+                "type": "object",
                 "required": [
                     "id",
                     "name",
                     "color",
                     "textColor"
                 ],
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "title": "Id",
-                        "type": "integer"
-                    },
-                    "name": {
-                        "title": "Name",
-                        "type": "string"
-                    },
-                    "color": {
-                        "title": "Color",
-                        "type": "array",
-                        "items": {
-                            "type": "integer"
-                        }
-                    },
-                    "textColor": {
-                        "title": "Textcolor",
-                        "type": "array",
-                        "items": {
-                            "type": "integer"
-                        }
-                    }
-                }
+                "title": "TagDisplay"
             },
             "UserDisplay": {
-                "title": "UserDisplay",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "title": "Id"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Createdat"
+                    },
+                    "discordId": {
+                        "type": "integer",
+                        "title": "Discordid"
+                    },
+                    "verifiedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Verifiedat"
+                    },
+                    "purchases": {
+                        "items": {
+                            "type": "integer"
+                        },
+                        "type": "array",
+                        "title": "Purchases"
+                    }
+                },
+                "type": "object",
                 "required": [
                     "id",
                     "createdAt",
@@ -1137,47 +1249,11 @@
                     "verifiedAt",
                     "purchases"
                 ],
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "title": "Id",
-                        "type": "integer"
-                    },
-                    "createdAt": {
-                        "title": "Createdat",
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "discordId": {
-                        "title": "Discordid",
-                        "type": "integer"
-                    },
-                    "verifiedAt": {
-                        "title": "Verifiedat",
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "purchases": {
-                        "title": "Purchases",
-                        "type": "array",
-                        "items": {
-                            "type": "integer"
-                        }
-                    }
-                }
+                "title": "UserDisplay"
             },
             "ValidationError": {
-                "title": "ValidationError",
-                "required": [
-                    "loc",
-                    "msg",
-                    "type"
-                ],
-                "type": "object",
                 "properties": {
                     "loc": {
-                        "title": "Location",
-                        "type": "array",
                         "items": {
                             "anyOf": [
                                 {
@@ -1187,35 +1263,51 @@
                                     "type": "integer"
                                 }
                             ]
-                        }
+                        },
+                        "type": "array",
+                        "title": "Location"
                     },
                     "msg": {
-                        "title": "Message",
-                        "type": "string"
+                        "type": "string",
+                        "title": "Message"
                     },
                     "type": {
-                        "title": "Error Type",
-                        "type": "string"
+                        "type": "string",
+                        "title": "Error Type"
                     }
-                }
+                },
+                "type": "object",
+                "required": [
+                    "loc",
+                    "msg",
+                    "type"
+                ],
+                "title": "ValidationError"
             },
             "Verification": {
-                "title": "Verification",
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "title": "Message"
+                    },
+                    "data": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Data",
+                        "default": "key123"
+                    }
+                },
+                "type": "object",
                 "required": [
                     "message"
                 ],
-                "type": "object",
-                "properties": {
-                    "message": {
-                        "title": "Message",
-                        "type": "string"
-                    },
-                    "data": {
-                        "title": "Data",
-                        "type": "string",
-                        "default": "key123"
-                    }
-                }
+                "title": "Verification"
             }
         },
         "securitySchemes": {

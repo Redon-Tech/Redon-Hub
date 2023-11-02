@@ -3,9 +3,9 @@ authors:
     - parker02311
 ---
 
-!!! danger
+!!! warning
 
-    This system is still in development and is not ready for use. Use at your own risk.
+    The system is in full release, however there may still be bugs due to a lack of testers. Please understand that the system is not perfect and may have bugs. If you find a bug please report it via [GitHub](https://github.com/Redon-Tech/Redon-Hub/issues/new).
 
 # Overview
 Redon Hub is designed to be as easy as possible to use. However, it is still a complex system. This guide will walk you through the installation process. If you need assistance you can ask in our Discord server, but please keep in mind this process is not easy and you should only attempt it if you have experience with databases and Discord bots.
