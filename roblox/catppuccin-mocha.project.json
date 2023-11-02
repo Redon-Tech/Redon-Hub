@@ -1,0 +1,61 @@
+{
+    "name": "Redon Hub - Catppuccin Latte",
+    "tree": {
+        "$className": "DataModel",
+        "Workspace": {
+            "$className": "Workspace",
+            "SpawnLocation": {
+                "$className": "SpawnLocation",
+                "$properties": {
+                    "Size": {
+                        "Vector3": [
+                            12,
+                            1,
+                            12
+                        ]
+                    },
+                    "Anchored": {
+                        "Bool": true
+                    },
+                    "Locked": {
+                        "Bool": true
+                    }
+                }
+            }
+        },
+        "ReplicatedStorage": {
+            "$className": "ReplicatedStorage",
+            "$path": "src/shared"
+        },
+        "ServerScriptService": {
+            "$className": "ServerScriptService",
+            "Hub_Server": {
+                "$path": "src/server"
+            },
+            "Configuration": {
+                "$path": "configs/catppuccin-mocha.lua"
+            }
+        },
+        "StarterGui": {
+            "$className": "StarterGui",
+            "$path": "src/ui"
+        },
+        "StarterPlayer": {
+            "$className": "StarterPlayer",
+            "StarterPlayerScripts": {
+                "$className": "StarterPlayerScripts",
+                "Hub_Client": {
+                    "$path": "src/client"
+                }
+            }
+        },
+        "HttpService": {
+            "$className": "HttpService",
+            "$properties": {
+                "HttpEnabled": {
+                    "Bool": true
+                }
+            }
+        }
+    }
+}
