@@ -36,6 +36,6 @@ jobs:
         run: rojo build roblox/catppuccin-mocha.project.json -o roblox/builds/catppuccin-mocha.rbxl
 
       - name: Upload Place Files
-        run: gh release upload $GITHUB_REF roblox/builds/*.rbxl
+        run: gh release upload ${{ github.ref_name }} roblox/builds/*.rbxl
         env:
           GITHUB_TOKEN: ${{ github.TOKEN }}
