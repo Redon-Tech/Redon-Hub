@@ -23,6 +23,7 @@ jobs:
         uses: Roblox/setup-foreman@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+        working-directory: roblox
 
       - name: Create builds directory
         run: mkdir -p roblox/builds
