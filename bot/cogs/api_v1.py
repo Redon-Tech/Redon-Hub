@@ -258,11 +258,14 @@ async def users_get_user_owns(
         return False
 
     if type(product_id) == str:
-        try:
-            product_info = await get_product_by_name(product_id)
-            product_id = product_info.id
-        except Exception as e:
-            return False
+        if product_id.isdigit():
+            product_id = int(product_id)
+        else:
+            try:
+                product_info = await get_product_by_name(product_id)
+                product_id = product_info.id
+            except Exception as e:
+                raise HTTPException(status_code=404, detail="Product Not Found")
 
     if product_id in user.purchases:
         return True
@@ -294,11 +297,14 @@ async def users_give_user_product(
         return False
 
     if type(product_id) == str:
-        try:
-            product_info = await get_product_by_name(product_id)
-            product_id = product_info.id
-        except Exception as e:
-            raise HTTPException(status_code=404, detail="Product Not Found")
+        if product_id.isdigit():
+            product_id = int(product_id)
+        else:
+            try:
+                product_info = await get_product_by_name(product_id)
+                product_id = product_info.id
+            except Exception as e:
+                raise HTTPException(status_code=404, detail="Product Not Found")
 
     try:
         product = await get_product(product_id)
@@ -360,11 +366,14 @@ async def users_revoke_user_product(
         return False
 
     if type(product_id) == str:
-        try:
-            product_info = await get_product_by_name(product_id)
-            product_id = product_info.id
-        except Exception as e:
-            raise HTTPException(status_code=404, detail="Product Not Found")
+        if product_id.isdigit():
+            product_id = int(product_id)
+        else:
+            try:
+                product_info = await get_product_by_name(product_id)
+                product_id = product_info.id
+            except Exception as e:
+                raise HTTPException(status_code=404, detail="Product Not Found")
 
     try:
         product = await get_product(product_id)
@@ -444,11 +453,16 @@ async def products_get_product(product_id: Union[int, str]) -> ProductDisplay:
     Gets a specific product from the database.
     """
     if type(product_id) == str:
-        try:
-            product_info = await get_product_by_name(product_id)
-            product_id = product_info.id
-        except Exception as e:
-            raise HTTPException(status_code=404, detail="Product Not Found (By Name)")
+        if product_id.isdigit():
+            product_id = int(product_id)
+        else:
+            try:
+                product_info = await get_product_by_name(product_id)
+                product_id = product_info.id
+            except Exception as e:
+                raise HTTPException(
+                    status_code=404, detail="Product Not Found (By Name)"
+                )
 
     try:
         product = await get_product(product_id)
@@ -498,11 +512,14 @@ async def products_patch(
     This is a patch meaning you don't have to pass all the data in the product object.
     """
     if type(product_id) == str:
-        try:
-            product_info = await get_product_by_name(product_id)
-            product_id = product_info.id
-        except Exception as e:
-            raise HTTPException(status_code=404, detail="Product Not Found")
+        if product_id.isdigit():
+            product_id = int(product_id)
+        else:
+            try:
+                product_info = await get_product_by_name(product_id)
+                product_id = product_info.id
+            except Exception as e:
+                raise HTTPException(status_code=404, detail="Product Not Found")
 
     try:
         updated_product = product.dict(exclude_unset=True)
@@ -530,11 +547,14 @@ async def products_delete(product_id: Union[int, str]) -> bool:
     **CAN NOT BE UNDONE!**
     """
     if type(product_id) == str:
-        try:
-            product_info = await get_product_by_name(product_id)
-            product_id = product_info.id
-        except Exception as e:
-            raise HTTPException(status_code=404, detail="Product Not Found")
+        if product_id.isdigit():
+            product_id = int(product_id)
+        else:
+            try:
+                product_info = await get_product_by_name(product_id)
+                product_id = product_info.id
+            except Exception as e:
+                raise HTTPException(status_code=404, detail="Product Not Found")
 
     try:
         await delete_product(product_id)
