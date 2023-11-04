@@ -4,7 +4,7 @@
         "version": "PTDL_v2",
         "update_url": null
     },
-    "exported_at": "2023-05-08T09:46:41-10:00",
+    "exported_at": "2023-11-04T09:08:04-10:00",
     "name": "Redon Hub",
     "author": "parker02311@redon.tech",
     "description": "Redon Hub Pterodactyl Egg",
@@ -13,16 +13,16 @@
         "ghcr.io\/parkervcp\/yolks:python_3.9": "ghcr.io\/parkervcp\/yolks:python_3.9"
     },
     "file_denylist": [],
-    "startup": "if [[ ! -z ${VERSION} ]]; then\r\n    echo -e \"Using version ${VERSION}\";\r\nelse\r\n    echo -e \"Please set the VERSION variable\";\r\n    exit 0;\r\nfi;\r\n\r\nif [[ -d .git ]] && [[ -z ${MODFILES} ]]; then\r\n    echo -e \"Forcing git checkout\";\r\n    git fetch --all --tags;\r\n    git checkout tags\/${VERSION} -f;\r\nelif [[ -d .git ]] && [[ ! -z ${MODFILES} ]]; then\r\n    echo -e \"User modify files enabled\";\r\n    git fetch --all --tags;\r\n    git checkout tags\/${VERSION};\r\nfi;\r\n\r\nif [ -f \/home\/container\/requirements.txt ]; then\r\n    pip install -U --prefix .local -r \/home\/container\/requirements.txt;\r\nfi;\r\n\r\n\/usr\/local\/bin\/python -m prisma generate --schema mysql-schema.prisma;\r\n\r\n\/usr\/local\/bin\/python \/home\/container\/launcher.py;",
+    "startup": "if [[ ! -z ${VERSION} ]]; then\r\n    echo -e \"Using version ${VERSION}\";\r\nelse\r\n    echo -e \"Please set the VERSION variable\";\r\n    exit 0;\r\nfi;\r\n\r\nif [[ -d .git ]] && [[ ! -z ${MODFILES} ]]; then\r\n    echo -e \"Forcing git checkout\";\r\n    git fetch --all --tags;\r\n    git checkout tags\/${VERSION} -f;\r\nelif [[ -d .git ]] && [[ -z ${MODFILES} ]]; then\r\n    echo -e \"User modify files enabled\";\r\n    git fetch --all --tags;\r\n    git checkout tags\/${VERSION};\r\nfi;\r\n\r\nif [ -f \/home\/container\/requirements.txt ]; then\r\n    pip install -U --prefix .local -r \/home\/container\/requirements.txt;\r\nfi;\r\n\r\n\/usr\/local\/bin\/python -m prisma generate --schema \/home\/container\/mysql-schema.prisma;\r\n\r\n\/usr\/local\/bin\/python \/home\/container\/launcher.py;",
     "config": {
-        "files": "{}",
+        "files": "{\r\n    \"config.json\": {\r\n        \"parser\": \"json\",\r\n        \"find\": {\r\n            \"API.Port\": \"{{server.build.default.port}}\"\r\n        }\r\n    }\r\n}",
         "startup": "{\r\n    \"done\": \"Database Connected\"\r\n}",
         "logs": "{}",
         "stop": "^C"
     },
     "scripts": {
         "installation": {
-            "script": "#!\/bin\/bash\r\n# Redon Hub Installation Script\r\n#\r\n# Server Files: \/mnt\/server\r\nif [ ! -d \/mnt\/server\/ ]; then\r\n    mkdir \/mnt\/server\/\r\nfi\r\ncd \/mnt\/server\r\n\r\napt update\r\napt install -y git curl jq file unzip make gcc g++ python3 python3-pip python-dev-is-python3 libtool libmariadb-dev\r\n\r\nif [[ ! -z ${VERSION} ]]; then\r\n    echo -e \"Using version ${VERSION}\"\r\nelse\r\n    echo -e \"Please set the VERSION variable\"\r\n    exit 1\r\nfi\r\n\r\nGIT_ADDRESS=${GITREPO}\r\n\r\n## pull git\r\nif [ \"$(ls -A \/mnt\/server)\" ]; then\r\n    echo -e \"\/mnt\/server directory is not empty.\"\r\n    if [ -d .git ]; then\r\n        echo -e \".git directory exists\"\r\n        if [ -f .git\/config ]; then\r\n            echo -e \"loading info from git config\"\r\n            ORIGIN=$(git config --get remote.origin.url)\r\n        else\r\n            echo -e \"files found with no git config\"\r\n            echo -e \"closing out without touching things to not break anything\"\r\n            exit 10\r\n        fi\r\n    fi\r\n\r\n    if [ \"${ORIGIN}\" == \"${GIT_ADDRESS}\" ]; then\r\n        echo \"pulling latest from github\"\r\n        git pull\r\n    fi\r\nelse\r\n    echo -e \"\/mnt\/server is empty.\\ncloning files into repo\"\r\n    git clone ${GIT_ADDRESS} .\r\n    git checkout tags\/${VERSION}\r\nfi\r\n\r\nexport HOME=\/mnt\/server\r\n\r\n\r\nif [ -f \/mnt\/server\/requirements.txt ]; then\r\n    echo -e \"Installing python requirements into folder\"\r\n    pip install -U --prefix .local -r \/mnt\/server\/requirements.txt\r\nfi\r\n\r\necho -e \"${OPENCLOUD}\"\r\nif [ \"${OPENCLOUD}\" == \"false\" ] || [ \"${OPENCLOUD}\" == \"0\" ]; then\r\n    echo -e \"Open cloud disabled, generating mysql-schema\"\r\n    python -m prisma generate --schema \/mnt\/server\/mysql-schema.prisma\r\nfi\r\n\r\necho -e \"install complete\"\r\nexit 0",
+            "script": "#!\/bin\/bash\r\n# Redon Hub Installation Script\r\n#\r\n# Server Files: \/mnt\/server\r\nif [ ! -d \/mnt\/server\/ ]; then\r\n    mkdir \/mnt\/server\/\r\nfi\r\ncd \/mnt\/server\r\n\r\napt update\r\napt install -y git curl jq file unzip make gcc g++ python3 python3-pip python-dev-is-python3 libtool libmariadb-dev\r\n\r\nif [[ ! -z ${VERSION} ]]; then\r\n    echo -e \"Using version ${VERSION}\"\r\nelse\r\n    echo -e \"Please set the VERSION variable\"\r\n    exit 1\r\nfi\r\n\r\nGIT_ADDRESS=${GITREPO}\r\n\r\n## pull git\r\nif [ \"$(ls -A \/mnt\/server)\" ]; then\r\n    echo -e \"\/mnt\/server directory is not empty.\"\r\n    if [ -d .git ]; then\r\n        echo -e \".git directory exists\"\r\n        if [ -f .git\/config ]; then\r\n            echo -e \"loading info from git config\"\r\n            ORIGIN=$(git config --get remote.origin.url)\r\n        else\r\n            echo -e \"files found with no git config\"\r\n            echo -e \"closing out without touching things to not break anything\"\r\n            exit 10\r\n        fi\r\n    fi\r\n\r\n    if [ \"${ORIGIN}\" == \"${GIT_ADDRESS}\" ]; then\r\n        echo \"pulling latest from github\"\r\n        git pull\r\n    fi\r\nelse\r\n    echo -e \"\/mnt\/server is empty.\\ncloning files into repo\"\r\n    git clone ${GIT_ADDRESS} .\r\n    git checkout tags\/${VERSION}\r\nfi\r\n\r\nexport HOME=\/mnt\/server\r\n\r\nif [ ! -f \/mnt\/server\/config.json ]; then\r\n    echo -e \"Creating config.json\"\r\n    cp example.config.json config.json\r\nfi\r\n\r\nif [ -f \/mnt\/server\/requirements.txt ]; then\r\n    echo -e \"Installing python requirements into folder\"\r\n    pip install -U --prefix .local -r \/mnt\/server\/requirements.txt\r\nfi\r\n\r\necho -e \"${OPENCLOUD}\"\r\nif [ \"${OPENCLOUD}\" == \"false\" ] || [ \"${OPENCLOUD}\" == \"0\" ]; then\r\n    echo -e \"Open cloud disabled, generating mysql-schema\"\r\n    python -m prisma generate --schema \/mnt\/server\/mysql-schema.prisma\r\nfi\r\n\r\necho -e \"install complete\"\r\nexit 0",
             "container": "python:3.9-slim",
             "entrypoint": "bash"
         }
@@ -32,7 +32,7 @@
             "name": "version",
             "description": "The version of the bot to use.",
             "env_variable": "version",
-            "default_value": "1.0-RC.1",
+            "default_value": "1.0.0",
             "user_viewable": true,
             "user_editable": true,
             "rules": "required|string",
@@ -42,7 +42,7 @@
             "name": "modify files",
             "description": "Enable modification of files.",
             "env_variable": "modfiles",
-            "default_value": "1",
+            "default_value": "0",
             "user_viewable": true,
             "user_editable": true,
             "rules": "required|boolean",
