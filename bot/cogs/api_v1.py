@@ -3,6 +3,7 @@
     Usage: Responsible for the creation of the API
 """
 from discord.ext.commands import Cog
+from discord.ext.tasks import loop
 from discord import app_commands, Interaction, Embed, utils
 from fastapi import FastAPI, HTTPException, Depends, WebSocket, Security, status
 from fastapi.security.api_key import APIKeyHeader, APIKey
@@ -671,6 +672,10 @@ server = uvicorn.Server(
 class API(Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.isRunning.start()
+
+    def cog_unload(self):
+        self.isRunning.cancel()
 
     def overwrite_uvicorn_logger(self):
         for name in logging.root.manager.loggerDict.keys():
@@ -724,6 +729,12 @@ class API(Cog):
             await interaction.followup.send("User unverified!", ephemeral=True)
         else:
             await interaction.followup.send("User not verified.", ephemeral=True)
+
+    @loop(seconds=10.0)
+    async def isRunning(self):
+        if server.should_exit:
+            _log.info("Uvicorn server has stopped running, shutting down bot.")
+            await self.bot.close()
 
     @Cog.listener()
     async def on_ready(self):
