@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "64eee15752bfc08a94086491defa8e09be505a0cf0e42215036468f5f696f70a"
+            "sha256": "43c7c18dc6b31cbaab17f8458a54cefbb40112159f01e4016b839f669a2ef08f"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -284,11 +284,11 @@
         },
         "fastapi": {
             "hashes": [
-                "sha256:510042044906b17b6d9149135d90886ade170bf615efcfb5533f568ae6d88534",
-                "sha256:5402389843a3561918634eb327e86b9ae98645a9e7696bede9074449c48d610a"
+                "sha256:5df913203c482f820d31f48e635e022f8cbfe7350e4830ef05a3163925b1addc",
+                "sha256:6feac43ec359dfe4f45b2c18ec8c94edb8dc2dfc461d417d9e626590c071baad"
             ],
             "index": "pypi",
-            "version": "==0.109.1"
+            "version": "==0.110.1"
         },
         "frozenlist": {
             "hashes": [
@@ -656,7 +656,6 @@
                 "sha256:ff61bfd9253c3915e6d41c651d5f962da23eda633cf02262990094a18a55371a"
             ],
             "index": "pypi",
-            "markers": "python_version >= '3.8'",
             "version": "==10.3.0"
         },
         "prisma": {
@@ -903,11 +902,11 @@
         },
         "starlette": {
             "hashes": [
-                "sha256:3e2639dac3520e4f58734ed22553f950d3f3cb1001cd2eaac4d57e8cdc5f66bc",
-                "sha256:50bbbda9baa098e361f398fda0928062abbaf1f54f4fadcbe17c092a01eb9a25"
+                "sha256:6fe59f29268538e5d0d182f2791a479a0c64638e6935d1c6989e63fb2699c6ee",
+                "sha256:9af890290133b79fc3db55474ade20f6220a364a0402e0b556e7cd5e1e093823"
             ],
             "markers": "python_version >= '3.8'",
-            "version": "==0.35.1"
+            "version": "==0.37.2"
         },
         "tomlkit": {
             "hashes": [
@@ -922,7 +921,7 @@
                 "sha256:69b1a937c3a517342112fb4c6df7e72fc39a38e7891a5730ed4985b5214b5475",
                 "sha256:b0abd7c89e8fb96f98db18d86106ff1d90ab692004eb746cf6eda2682f91b3cb"
             ],
-            "markers": "python_version >= '3.8'",
+            "markers": "python_version < '3.11'",
             "version": "==4.10.0"
         },
         "tzdata": {
