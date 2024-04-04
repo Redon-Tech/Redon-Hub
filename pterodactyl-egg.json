@@ -4,7 +4,7 @@
         "version": "PTDL_v2",
         "update_url": null
     },
-    "exported_at": "2023-11-04T09:08:04-10:00",
+    "exported_at": "2024-03-19T13:47:27-10:00",
     "name": "Redon Hub",
     "author": "parker02311@redon.tech",
     "description": "Redon Hub Pterodactyl Egg",
@@ -13,7 +13,7 @@
         "ghcr.io\/parkervcp\/yolks:python_3.9": "ghcr.io\/parkervcp\/yolks:python_3.9"
     },
     "file_denylist": [],
-    "startup": "if [[ ! -z ${VERSION} ]]; then\r\n    echo -e \"Using version ${VERSION}\";\r\nelse\r\n    echo -e \"Please set the VERSION variable\";\r\n    exit 0;\r\nfi;\r\n\r\nif [[ -d .git ]] && [[ ! -z ${MODFILES} ]]; then\r\n    echo -e \"Forcing git checkout\";\r\n    git fetch --all --tags;\r\n    git checkout tags\/${VERSION} -f;\r\nelif [[ -d .git ]] && [[ -z ${MODFILES} ]]; then\r\n    echo -e \"User modify files enabled\";\r\n    git fetch --all --tags;\r\n    git checkout tags\/${VERSION};\r\nfi;\r\n\r\nif [ -f \/home\/container\/requirements.txt ]; then\r\n    pip install -U --prefix .local -r \/home\/container\/requirements.txt;\r\nfi;\r\n\r\n\/usr\/local\/bin\/python -m prisma generate --schema \/home\/container\/mysql-schema.prisma;\r\n\r\n\/usr\/local\/bin\/python \/home\/container\/launcher.py;",
+    "startup": "if [[ ! -z ${VERSION} ]]; then\r\n    echo -e \"Using version ${VERSION}\";\r\nelse\r\n    echo -e \"Please set the VERSION variable\";\r\n    exit 0;\r\nfi;\r\n\r\nif [[ -d .git ]] && [[ ${MODFILES} == 0 ]]; then\r\n    echo -e \"Forcing git checkout\";\r\n    git fetch --all --tags;\r\n    git checkout tags\/${VERSION} -f;\r\nelif [[ -d .git ]] && [[ ${MODFILES} == 1 ]]; then\r\n    echo -e \"User modify files enabled\";\r\n    git fetch --all --tags;\r\n    git checkout tags\/${VERSION};\r\nfi;\r\n\r\nif [ -f \/home\/container\/requirements.txt ]; then\r\n    pip install -U --prefix .local -r \/home\/container\/requirements.txt;\r\nfi;\r\n\r\n\/usr\/local\/bin\/python -m prisma generate --schema \/home\/container\/mysql-schema.prisma;\r\n\r\n\/usr\/local\/bin\/python \/home\/container\/launcher.py;",
     "config": {
         "files": "{\r\n    \"config.json\": {\r\n        \"parser\": \"json\",\r\n        \"find\": {\r\n            \"API.Port\": \"{{server.build.default.port}}\"\r\n        }\r\n    }\r\n}",
         "startup": "{\r\n    \"done\": \"Database Connected\"\r\n}",
@@ -30,7 +30,7 @@
     "variables": [
         {
             "name": "version",
-            "description": "The version of the bot to use.",
+            "description": "The version of the bot to use.\r\nIf you wish to update to latest version please contact support staff.\r\n\r\nOnly modifiable by paying users.\r\nPlease contact support if you do not know how to update your database.",
             "env_variable": "version",
             "default_value": "1.0.0",
             "user_viewable": true,
@@ -40,7 +40,7 @@
         },
         {
             "name": "modify files",
-            "description": "Enable modification of files.",
+            "description": "Enable modification of files.\r\n\r\nOnly modifiable by paying users.",
             "env_variable": "modfiles",
             "default_value": "0",
             "user_viewable": true,
@@ -60,7 +60,7 @@
         },
         {
             "name": "Uses Open Cloud",
-            "description": "If you use open cloud please enable this, this prevents the script from running prisma generate.",
+            "description": "If you use open cloud please enable this, this prevents the script from running prisma generate.\r\n\r\nPlease contact staff to get this changed.\r\nCan only be changed by paying users.",
             "env_variable": "opencloud",
             "default_value": "0",
             "user_viewable": true,
