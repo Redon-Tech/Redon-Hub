@@ -15,7 +15,7 @@
     "file_denylist": [],
     "startup": "if [[ ! -z ${VERSION} ]]; then\r\n    echo -e \"Using version ${VERSION}\";\r\nelse\r\n    echo -e \"Please set the VERSION variable\";\r\n    exit 0;\r\nfi;\r\n\r\nif [[ -d .git ]] && [[ ${MODFILES} == 0 ]]; then\r\n    echo -e \"Forcing git checkout\";\r\n    git fetch --all --tags;\r\n    git checkout tags\/${VERSION} -f;\r\nelif [[ -d .git ]] && [[ ${MODFILES} == 1 ]]; then\r\n    echo -e \"User modify files enabled\";\r\n    git fetch --all --tags;\r\n    git checkout tags\/${VERSION};\r\nfi;\r\n\r\nif [ -f \/home\/container\/requirements.txt ]; then\r\n    pip install -U --prefix .local -r \/home\/container\/requirements.txt;\r\nfi;\r\n\r\n\/usr\/local\/bin\/python -m prisma generate --schema \/home\/container\/mysql-schema.prisma;\r\n\r\n\/usr\/local\/bin\/python \/home\/container\/launcher.py;",
     "config": {
-        "files": "{\r\n    \"config.json\": {\r\n        \"parser\": \"json\",\r\n        \"find\": {\r\n            \"API.Port\": \"{{server.build.default.port}}\"\r\n        }\r\n    }\r\n}",
+        "files": "{}",
         "startup": "{\r\n    \"done\": \"Database Connected\"\r\n}",
         "logs": "{}",
         "stop": "^C"

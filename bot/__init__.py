@@ -2,6 +2,7 @@
     File: /bot/__init__.py
     Usage: The bot's main file.
 """
+
 from discord import Object as DiscordObject
 from discord.ext.commands import Bot as BotBase
 from . import config
@@ -41,7 +42,7 @@ class Bot(BotBase):
 
     async def sync_commands(self):
         for guildid in config.Bot.Guilds:
-            guild = DiscordObject(id=guildid)
+            guild = await self.fetch_guild(guildid)
             self.tree.copy_global_to(guild=guild)
             await self.tree.sync(guild=guild)
 
