@@ -2,7 +2,15 @@
     File: /bot/cogs/user.py
     Usage: User related commands
 """
-from discord import app_commands, Interaction, Member, Embed, utils, Forbidden
+
+from discord import (
+    app_commands,
+    Interaction,
+    Member,
+    Embed,
+    utils,
+    Forbidden,
+)
 from discord.ext.commands import Cog
 from bot.data import (
     get_user_by_discord_id,
@@ -27,7 +35,6 @@ class User(Cog):
         name="admin",
         description="User Admin Commands",
         parent=user_commands,
-        default_permissions=None,
     )
 
     @app_commands.command(name="profile", description="View a user's profile")
@@ -391,6 +398,7 @@ class User(Cog):
         ]
 
     @user_admin.command(name="give", description="Give a user a product")
+    @app_commands.checks.has_permissions(administrator=True)
     async def user_admin_give(
         self, interaction: Interaction, product_name: str, member: Member
     ):
@@ -483,6 +491,7 @@ class User(Cog):
             )
 
     @user_admin_give.autocomplete("product_name")
+    @app_commands.checks.has_permissions(administrator=True)
     async def user_admin_give_autocomplete(
         self, interaction: Interaction, current_product_name: str
     ):
@@ -498,6 +507,7 @@ class User(Cog):
         ]
 
     @user_admin.command(name="revoke", description="Revoke a product from a user")
+    @app_commands.checks.has_permissions(administrator=True)
     async def user_admin_revoke(
         self, interaction: Interaction, product_name: str, member: Member
     ):
@@ -572,6 +582,7 @@ class User(Cog):
             )
 
     @user_admin_revoke.autocomplete("product_name")
+    @app_commands.checks.has_permissions(administrator=True)
     async def user_admin_revoke_autocomplete(
         self, interaction: Interaction, current_product_name: str
     ):

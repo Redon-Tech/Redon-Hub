@@ -2,15 +2,14 @@
     File: /bot/cogs/tags.py
     Usage: Tag related commands
 """
+
 from discord import (
     app_commands,
     Interaction,
     Embed,
     utils,
     ui,
-    TextStyle,
     SelectOption,
-    ButtonStyle,
 )
 from discord.ext.commands import Cog
 from bot.data import get_tag, get_tag_by_name, get_tags, create_tag, delete_tag, Tag
@@ -192,7 +191,6 @@ class TagCog(Cog):
         name="admin",
         description="Tag Admin Commands",
         parent=tag_commands,
-        default_permissions=None,
     )
 
     @app_commands.command(name="tags", description="View all the tags this server has")
@@ -260,10 +258,12 @@ class TagCog(Cog):
         ]
 
     @tag_admin.command(name="create", description="Create a new tag")
+    @app_commands.checks.has_permissions(administrator=True)
     async def create_tag_command(self, interaction: Interaction):
         await interaction.response.send_modal(createTag(bot=self.bot))
 
     @tag_admin.command(name="delete", description="Delete a tag")
+    @app_commands.checks.has_permissions(administrator=True)
     async def delete_tag_command(self, interaction: Interaction):
         await interaction.response.defer()
 
@@ -280,6 +280,7 @@ class TagCog(Cog):
         )
 
     @tag_admin.command(name="update", description="Update a tag")
+    @app_commands.checks.has_permissions(administrator=True)
     async def update_tag_command(self, interaction: Interaction, tag_name: str):
         try:
             tag = await get_tag_by_name(tag_name)

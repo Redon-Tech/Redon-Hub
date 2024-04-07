@@ -2,10 +2,10 @@
     File: /bot/cogs/product.py
     Usage: Product related commands
 """
+
 from discord import (
     app_commands,
     Interaction,
-    Member,
     Embed,
     utils,
     ui,
@@ -14,13 +14,13 @@ from discord import (
     ButtonStyle,
     Role,
 )
+from discord.app_commands import MissingPermissions
 from asyncio import TimeoutError
 from discord.ext.commands import Cog
 from bot.data import (
     get_users,
     get_products,
     get_product_by_name,
-    get_product,
     create_product,
     delete_product,
     get_tags,
@@ -817,7 +817,6 @@ class ProductCog(Cog):
         name="admin",
         description="Product Admin Commands",
         parent=product_commands,
-        default_permissions=None,
     )
 
     @app_commands.command(
@@ -893,6 +892,7 @@ class ProductCog(Cog):
     @product_admin.command(
         name="stats", description="Get statistics on a specific product"
     )
+    @app_commands.checks.has_permissions(administrator=True)
     async def get_product_stats_info_command(
         self, interaction: Interaction, product_name: str
     ):
@@ -939,10 +939,12 @@ class ProductCog(Cog):
         ]
 
     @product_admin.command(name="create", description="Create a new product")
+    @app_commands.checks.has_permissions(administrator=True)
     async def create_product_command(self, interaction: Interaction):
         await interaction.response.send_modal(createProduct(bot=self.bot))
 
     @product_admin.command(name="delete", description="Delete a product")
+    @app_commands.checks.has_permissions(administrator=True)
     async def delete_product_command(self, interaction: Interaction, product_name: str):
         try:
             product = await get_product_by_name(product_name)
@@ -1033,17 +1035,19 @@ class ProductCog(Cog):
         ]
 
     @product_admin.command(name="clear", description="Delete all products")
+    @app_commands.checks.has_permissions(administrator=True)
     async def clear_products_command(self, interaction: Interaction):
         if interaction.user.id not in config.Bot.Owners:
-            await interaction.response.send_message(
-                embed=Embed(
-                    title="Error",
-                    description="You are not allowed to use this command.",
-                    colour=interaction.user.colour,
-                    timestamp=utils.utcnow(),
-                ).set_footer(text=f"Redon Hub • Version {self.bot.version}"),
-            )
-            return
+            # await interaction.response.send_message(
+            #     embed=Embed(
+            #         title="Error",
+            #         description="You are not allowed to use this command.",
+            #         colour=interaction.user.colour,
+            #         timestamp=utils.utcnow(),
+            #     ).set_footer(text=f"Redon Hub • Version {self.bot.version}"),
+            # )
+            # return
+            raise MissingPermissions("Bot Owner")
 
         try:
             products = await get_products()
@@ -1114,6 +1118,7 @@ class ProductCog(Cog):
             )
 
     @product_admin.command(name="update", description="Update a product")
+    @app_commands.checks.has_permissions(administrator=True)
     async def update_product_command(self, interaction: Interaction, product_name: str):
         await interaction.response.defer()
 

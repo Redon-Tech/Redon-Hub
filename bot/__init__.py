@@ -3,16 +3,18 @@
     Usage: The bot's main file.
 """
 
-from discord import Object as DiscordObject
+from discord import Interaction, Embed
 from discord.ext.commands import Bot as BotBase
+from discord.app_commands import AppCommandError, MissingPermissions
 from . import config
 from .data import database
 from glob import glob
 import logging
 import os
+import datetime
 
 _log = logging.getLogger(__name__)
-__version__ = "1.0.0"
+__version__ = "1.0.2"
 
 
 class Bot(BotBase):
@@ -20,6 +22,8 @@ class Bot(BotBase):
         self.version = kwargs.get("version", "N/A")
         self.ready = False
         super().__init__(*args, **kwargs)
+
+        self.tree.on_error = self.on_app_command_error
 
     async def load_extensions(self):
         # Original code from pycord
@@ -54,3 +58,18 @@ class Bot(BotBase):
             await database.connect()
 
             _log.info("Database Connected")
+
+    async def on_app_command_error(
+        self, interaction: Interaction, error: AppCommandError
+    ):
+        if isinstance(error, MissingPermissions):
+            await interaction.response.send_message(
+                embed=Embed(
+                    title="Error",
+                    description="You are not allowed to use this command.",
+                    colour=interaction.user.colour,
+                    timestamp=datetime.datetime.now(datetime.timezone.utc),
+                ).set_footer(text=f"Redon Hub • Version {self.version}"),
+            )
+
+        _log.error(error)
