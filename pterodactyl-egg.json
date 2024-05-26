@@ -4,7 +4,7 @@
         "version": "PTDL_v2",
         "update_url": null
     },
-    "exported_at": "2024-03-19T13:47:27-10:00",
+    "exported_at": "2024-05-26T09:45:13-10:00",
     "name": "Redon Hub",
     "author": "parker02311@redon.tech",
     "description": "Redon Hub Pterodactyl Egg",
@@ -13,7 +13,7 @@
         "ghcr.io\/parkervcp\/yolks:python_3.9": "ghcr.io\/parkervcp\/yolks:python_3.9"
     },
     "file_denylist": [],
-    "startup": "if [[ ! -z ${VERSION} ]]; then\r\n    echo -e \"Using version ${VERSION}\";\r\nelse\r\n    echo -e \"Please set the VERSION variable\";\r\n    exit 0;\r\nfi;\r\n\r\nif [[ -d .git ]] && [[ ${MODFILES} == 0 ]]; then\r\n    echo -e \"Forcing git checkout\";\r\n    git fetch --all --tags;\r\n    git checkout tags\/${VERSION} -f;\r\nelif [[ -d .git ]] && [[ ${MODFILES} == 1 ]]; then\r\n    echo -e \"User modify files enabled\";\r\n    git fetch --all --tags;\r\n    git checkout tags\/${VERSION};\r\nfi;\r\n\r\nif [ -f \/home\/container\/requirements.txt ]; then\r\n    pip install -U --prefix .local -r \/home\/container\/requirements.txt;\r\nfi;\r\n\r\n\/usr\/local\/bin\/python -m prisma generate --schema \/home\/container\/mysql-schema.prisma;\r\n\r\n\/usr\/local\/bin\/python \/home\/container\/launcher.py;",
+    "startup": "if [[ ! -z ${VERSION} ]]; then\r\n    echo -e \"Using version ${VERSION}\";\r\nelse\r\n    echo -e \"Please set the VERSION variable\";\r\n    exit 0;\r\nfi;\r\n\r\nif [[ -d .git ]] && [[ ${MODFILES} == 0 ]]; then\r\n    echo -e \"Forcing git checkout\";\r\n    git fetch --all --tags;\r\n    git checkout tags\/${VERSION} -f;\r\nelif [[ -d .git ]] && [[ ${MODFILES} == 1 ]]; then\r\n    echo -e \"User modify files enabled\";\r\n    git fetch --all --tags;\r\n    git checkout tags\/${VERSION};\r\nfi;\r\n\r\nif [ -f \/home\/container\/requirements.txt ]; then\r\n    pip install -U --prefix .local -r \/home\/container\/requirements.txt;\r\nfi;\r\n\r\nif [[ ${DBPUSH} == 0 ]]; then\r\n    echo -e \"Running prisma generate\";\r\n    \/usr\/local\/bin\/python -m prisma generate --schema \/home\/container\/mysql-schema.prisma;\r\nelif [[ ${DBPUSH} == 1 ]]; then\r\n    echo -e \"Running prisma db push\";\r\n    \/usr\/local\/bin\/python -m prisma db push --schema \/home\/container\/mysql-schema.prisma;\r\nfi;\r\n\r\n\/usr\/local\/bin\/python \/home\/container\/launcher.py;",
     "config": {
         "files": "{}",
         "startup": "{\r\n    \"done\": \"Database Connected\"\r\n}",
@@ -30,9 +30,9 @@
     "variables": [
         {
             "name": "version",
-            "description": "The version of the bot to use.\r\nIf you wish to update to latest version please contact support staff.\r\n\r\nOnly modifiable by paying users.\r\nPlease contact support if you do not know how to update your database.",
+            "description": "The version of the bot to use.\r\nPlease ensure to update your database whenever you update to a later version.",
             "env_variable": "version",
-            "default_value": "1.0.0",
+            "default_value": "1.0.2",
             "user_viewable": true,
             "user_editable": true,
             "rules": "required|string",
@@ -65,6 +65,16 @@
             "default_value": "0",
             "user_viewable": true,
             "user_editable": false,
+            "rules": "required|boolean",
+            "field_type": "text"
+        },
+        {
+            "name": "db push",
+            "description": "Run this to sync your database to the server.\r\nIt is recommended to only use this once, or after updates. \r\n\r\nOnce you enable this restart your server and the bot will automatically run `prisma db push`.",
+            "env_variable": "dbpush",
+            "default_value": "0",
+            "user_viewable": true,
+            "user_editable": true,
             "rules": "required|boolean",
             "field_type": "text"
         }

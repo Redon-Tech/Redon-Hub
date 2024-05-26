@@ -58,9 +58,10 @@ or view API documentation on your hub by adding `/docs` to the end of your hub's
 
 
 ### Version To Be Determined
-| Status      | Name                  | Description | Reason TBD                     |
-| ----------- | --------------------- | ----------- | ------------------------------ |
-| In Planning | Product Testing       | N/A         | Haven't planned that far ahead |
-| In Planning | Monthly Subscriptions | N/A         | Haven't planned that far ahead |
-| In Planning | Product Loaning       | N/A         | Haven't planned that far ahead |
-| In Planning | Product Licenses      | N/A         | Haven't planned that far ahead |
+| Status      | Name                    | Description | Reason TBD                     |
+| ----------- | ----------------------- | ----------- | ------------------------------ |
+| In Planning | Product Testing         | N/A         | Haven't planned that far ahead |
+| In Planning | Monthly Subscriptions   | N/A         | Haven't planned that far ahead |
+| In Planning | Product Loaning         | N/A         | Haven't planned that far ahead |
+| In Planning | Product Licenses        | N/A         | Haven't planned that far ahead |
+| In Planning | Product Grant Log Title | N/A         | Haven't planned that far ahead |
