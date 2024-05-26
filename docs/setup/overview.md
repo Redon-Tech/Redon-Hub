@@ -31,5 +31,6 @@ Redon Hub is designed to be as easy as possible to use. However, it is still a c
 
     I will not be providing any support with port forwarding, I recommend you use a hosting service. If you are unable to figure out how to use a hosting service [we provide one](https://billing.redon.tech).
 
-[Roblox Setup](/setup/roblox/setup){ .md-button .md-button--primary }
-[Setup Bot](/setup/bot/setup){ .md-button .md-button--primary }
+[Roblox Setup](roblox/setup.md){ .md-button .md-button--primary }
+[Setup Bot](bot/local/setup.md){ .md-button .md-button--primary }
+[Setup Bot on Pterodactyl](bot/pterodactyl/setup.md){ .md-button .md-button--primary }

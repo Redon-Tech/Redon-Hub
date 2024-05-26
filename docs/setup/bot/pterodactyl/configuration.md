@@ -3,19 +3,13 @@ authors:
     - parker02311
 ---
 
-This guide is the next part after [setting up the database](/setup/bot/database). If you have not setup the database yet please do so before continuing.
+This guide is the next part after [setting up the database](database.md). If you have not setup the database yet please do so before continuing.
 
 ## Creating the JSON File
 The bot uses a mix of both a `config.json` and a `.env` file for configuration. The `config.json` file is used for configuration that is not sensitive and can be shared publicly. The `.env` file is used for sensitive information such as tokens and database connection strings. To create the `config.json` file we will copy the `example.config.json` file and rename it to `config.json`. We can do this with the following.
-
-=== "Windows"
-    <video width="1920" height="1080" controls>
-        <source src="/assets/create_config.mp4" type="video/mp4">
-    </video>
-=== "Linux"
-    ```bash
-    cp config.example.json config.json
-    ```
+<video width="1920" height="1080" controls>
+    <source src="/assets/create_pterodactyl_config.mp4" type="video/mp4">
+</video>
 
 ## Configuration Explained
 Now that we have our `config.json` file we can start configuring it. Below is a list of all the options and what they do.
@@ -79,6 +73,6 @@ Now that we have our `config.json` file we can finish our `.env` file. To do thi
 token=this_is_your_bot_token
 ```
 
-[Next: Starting the Bot](/setup/bot/running){ .md-button .md-button--primary }
+[Next: Starting the Bot](running.md){ .md-button .md-button--primary }
 
 [^1]: The first guild in this list will also be the guild the bot will use for customer roles and the purchase channel.

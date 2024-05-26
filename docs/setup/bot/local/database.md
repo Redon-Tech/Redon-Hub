@@ -3,7 +3,7 @@ authors:
     - parker02311
 ---
 
-This guide is the next part after [installing the system](/setup/bot/setup). If you have not installed the system yet please do so before continuing.
+This guide is the next part after [installing the system](setup.md). If you have not installed the system yet please do so before continuing.
 
 !!! warning
 
@@ -84,4 +84,4 @@ We use [Prisma](https://www.prisma.io/) to manage our database. To setup Prisma 
     # Using db push is not always the best way to do this, however it is the easiest.
     python3 -m prisma db push --schema mongodb-schema.prisma
     ```
-[Next: Configuration](/setup/bot/configuration){ .md-button .md-button--primary }
+[Next: Configuration](configuration.md){ .md-button .md-button--primary }

@@ -9,11 +9,17 @@ nav:
     - Setup:
       - setup/overview.md
       - Bot:
-        - setup/bot/setup.md
-        - Database Setup: setup/bot/database.md
-        - Configuration: setup/bot/configuration.md
-        - Starting the Bot: setup/bot/running.md
         - Hosting: setup/bot/hosting.md
+        - Self Hosted:
+          - setup/bot/local/setup.md
+          - Database Setup: setup/bot/local/database.md
+          - Configuration: setup/bot/local/configuration.md
+          - Starting the Bot: setup/bot/local/running.md
+        - Pterodactyl:
+          - setup/bot/pterodactyl/setup.md
+          - Database Setup: setup/bot/pterodactyl/database.md
+          - Configuration: setup/bot/pterodactyl/configuration.md
+          - Starting the Bot: setup/bot/pterodactyl/running.md
       - Roblox:
         - setup/roblox/setup.md
         - Configuration: setup/roblox/configuration.md

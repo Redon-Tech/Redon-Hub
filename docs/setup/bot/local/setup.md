@@ -51,4 +51,4 @@ Before we get to setting up our database and configuring the bot we must first i
     pip install -U -r requirements.txt
     ```
 
-[Next: Database Setup](/setup/bot/database){ .md-button .md-button--primary }
+[Next: Database Setup](database.md){ .md-button .md-button--primary }

@@ -3,7 +3,7 @@ authors:
     - parker02311
 ---
 
-This guide is the next part after [setting up the place](/setup/roblox/setup). If you have not setup a place yet please do so before continuing.
+This guide is the next part after [setting up the place](setup.md). If you have not setup a place yet please do so before continuing.
 
 ## Finding the Configuration module
 The configuration file is located in ServerScriptService under the name `Configuration`. You can find it by searching for it in the explorer.

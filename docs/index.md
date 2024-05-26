@@ -31,4 +31,4 @@ This system is still in development and is not ready for use. Use at your own ri
 
 # Installation
 
-Read the [Setup Guide](/setup/overview/) for more information.
+Read the [Setup Guide](setup/overview.md) for more information.
