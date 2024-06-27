@@ -21,6 +21,9 @@
                         "Bool": true
                     }
                 }
+            },
+            "LICENSE": {
+                "$path": "LICENSE.luau"
             }
         },
         "ReplicatedStorage": {
