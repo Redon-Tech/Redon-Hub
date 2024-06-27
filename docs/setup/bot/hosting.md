@@ -14,7 +14,7 @@ If you host a pterodactyl panel you can download our egg for easy installation. 
 
 ## Recommended Hosting Providers
 - [Redon Hosting](https://billing.redon.tech/) (Free[^1], Paid Plans Available)
-- [Embotic](https://embotic.xyz/) (Provides preinstall for Redon Hub)
+- [Embotic](https://embotic.xyz/) (Free, provides preinstall for Redon Hub)
 - [PebbleHost](https://pebblehost.com/bot-hosting) (Cheap, but does not provide preinstall for Redon Hub)
 
 (I will add more as I find them, if you know of any please let me know in our Discord server)

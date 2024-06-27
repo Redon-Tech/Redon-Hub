@@ -28,6 +28,8 @@ nav:
       - Commands: guide/commands.md
       - API: guide/api.md
 
+copyright: Copyright &copy; 2024 Redon Tech
+
 extra:
   social:
     - icon: fontawesome/brands/github
@@ -49,20 +51,22 @@ theme:
   name: 'material'
   icon:
     logo: material/package-variant
-  favicon: https://redon.tech/assets/img/Redon%20Tech%20Logo%20New%20Transparent.png
+  favicon: assets/favicon.png
+  custom_dir: docs/assets/overrides
   palette:
-    - scheme: default
-      primary: indigo
-      accent: red
+    - media: '(prefers-color-scheme: light)'
+      scheme: catppuccin-latte
       toggle:
         icon: material/brightness-7
         name: Switch to dark mode
-    - scheme: slate
-      primary: indigo
-      accent: red
+    - media: '(prefers-color-scheme: dark)'
+      scheme: catppuccin-mocha
       toggle:
         icon: material/brightness-3
         name: Switch to light mode
+
+extra_css:
+  - assets/css/theme.css
 
 plugins:
   - search
