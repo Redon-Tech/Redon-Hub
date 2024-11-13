@@ -4,16 +4,16 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-"discord.py" = "==2.3.2"
-regex = "==2023.10.3"
+"discord.py" = "==2.4.0"
+regex = "==2024.11.7"
 apscheduler = "==3.10.4"
-python-dotenv = "==1.0.0"
-fastapi = "==0.110.1"
-uvicorn = "==0.23.2"
-websockets = "==12.0"
-prisma = "==0.11.0"
-pillow = "==10.3.0"
-requests = "==2.31.0"
+python-dotenv = "==1.0.1"
+fastapi = "==0.115.5"
+uvicorn = "==0.32.0"
+websockets = "==14.1"
+prisma = "==0.15.0"
+pillow = "==11.0.0"
+requests = "==2.32.3"
 
 [dev-packages]
 
