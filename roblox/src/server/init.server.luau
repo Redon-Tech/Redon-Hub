@@ -11,7 +11,7 @@ type user = {
 	createdAt: DateTime,
 	discordId: number,
 	verifiedAt: DateTime,
-	purchases: {number},
+	purchases: { number },
 }
 
 type tag = {
@@ -30,14 +30,13 @@ type product = {
 	price: number,
 	productId: number,
 	stock: number?,
-	tags: {number},
+	tags: { number },
 	purchases: number,
 	owners: number,
 }
 
 -- Variables
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Players = game:GetService("Players")
 local HttpService = game:GetService("HttpService")
 local MarketplaceService = game:GetService("MarketplaceService")
 local SoundService = game:GetService("SoundService")
@@ -47,14 +46,16 @@ local PlayerReady = ReplicatedStorage:WaitForChild("PlayerReady")
 
 local devMode = SoundService:GetAttribute("DevModeEnabled")
 local configuration = require(script.Parent.Configuration)
-local serverUrl: string do
+local serverUrl: string
+do
 	if devMode then
 		serverUrl = SoundService:GetAttribute("DevModeConnection")
 	else
 		serverUrl = configuration.ServerAddress
 	end
 end
-local apiKey do
+local apiKey
+do
 	if devMode then
 		apiKey = SoundService:GetAttribute("DevModeKey")
 	else
@@ -64,10 +65,10 @@ end
 
 local functions = {}
 local events = {}
-local products: {number:product} = {}
-local productsByProduct: {number:product} = {}
-local users: {number:user} = {}
-local tags: {number:tag} = {}
+local products: { [number]: product } = {}
+local productsByProduct: { [number]: product } = {}
+--local users: {[number]:user} = {}
+local tags: { [number]: tag } = {}
 local serverIsOnline = nil
 local cartEnabled = nil
 
@@ -79,7 +80,7 @@ local function isServerOnline()
 	local success, data = pcall(function()
 		return HttpService:GetAsync(serverUrl, true)
 	end)
-	
+
 	if success then
 		data = HttpService:JSONDecode(data)
 		if data["message"] == "Online" and data["databaseConnected"] == true then
@@ -87,14 +88,14 @@ local function isServerOnline()
 			return true
 		end
 	end
-	
+
 	serverIsOnline = false
 	return false
 end
 
 local function isCartEnabled()
 	local success, data = pcall(function()
-		return HttpService:GetAsync(`{serverUrl}v1/cart_enabled`, true, {Authorization = `Bearer {apiKey}`})
+		return HttpService:GetAsync(`{serverUrl}v1/cart_enabled`, true, { Authorization = `Bearer {apiKey}` })
 	end)
 
 	if success then
@@ -109,7 +110,9 @@ local function isCartEnabled()
 end
 
 local function cacheProduct(productInfoRaw)
-	if products[productInfoRaw.id] then return products[productInfoRaw.id] end
+	if products[productInfoRaw.id] then
+		return products[productInfoRaw.id]
+	end
 	local productInfo: product = {
 		id = productInfoRaw.id,
 		createdAt = DateTime.fromIsoDate(productInfoRaw.createdAt),
@@ -131,24 +134,26 @@ local function cacheProduct(productInfoRaw)
 			end
 		end
 	end)
-	
+
 	--print(`product: {productInfoRaw.id}`, productInfo)
 	products[productInfoRaw.id] = productInfo
 	productsByProduct[productInfoRaw.productId] = productInfo
-	
+
 	return productInfo
 end
 
 local function getProducts()
-	if serverIsOnline == false then return end
-	
+	if serverIsOnline == false then
+		return
+	end
+
 	local success, data = pcall(function()
-		return HttpService:GetAsync(`{serverUrl}v1/products`, nil, {Authorization = `Bearer {apiKey}`})
+		return HttpService:GetAsync(`{serverUrl}v1/products`, nil, { Authorization = `Bearer {apiKey}` })
 	end)
-	
+
 	if success then
 		data = HttpService:JSONDecode(data)
-		for _,productData in pairs(data) do
+		for _, productData in pairs(data) do
 			cacheProduct(productData)
 		end
 		return true, products
@@ -159,7 +164,9 @@ local function getProducts()
 end
 
 local function cacheTag(tagInfoRaw)
-	if tags[tagInfoRaw.id] then return tags[tagInfoRaw.id] end
+	if tags[tagInfoRaw.id] then
+		return tags[tagInfoRaw.id]
+	end
 	local tagInfo: tag = {
 		id = tagInfoRaw.id,
 		name = tagInfoRaw.name,
@@ -174,21 +181,24 @@ local function cacheTag(tagInfoRaw)
 end
 
 local function getTags()
-	if serverIsOnline == false then return end
+	if serverIsOnline == false then
+		return
+	end
 
 	local success, data = pcall(function()
-		return HttpService:GetAsync(`{serverUrl}v1/tags`, nil, {Authorization = `Bearer {apiKey}`})
+		return HttpService:GetAsync(`{serverUrl}v1/tags`, nil, { Authorization = `Bearer {apiKey}` })
 	end)
 
 	if success then
 		data = HttpService:JSONDecode(data)
-		for _,tagData in pairs(data) do
+		for _, tagData in pairs(data) do
 			cacheTag(tagData)
 		end
 		return true, tags
 	else
 		warn(`getTags failed because {data}`, "\n", debug.traceback())
 	end
+	return false
 end
 
 -- Initial Server Setup
@@ -200,13 +210,13 @@ getTags()
 MarketplaceService.ProcessReceipt = function(receiptInfo)
 	--print(receiptInfo)
 	if productsByProduct[receiptInfo.ProductId] then
-		local productInfo:product = productsByProduct[receiptInfo.ProductId]
+		local productInfo: product = productsByProduct[receiptInfo.ProductId]
 		--print(productInfo)
-		
+
 		local success, data = pcall(function()
 			return HttpService:GetAsync(`{serverUrl}v1/users/{receiptInfo.PlayerId}/owns/{productInfo.id}`, nil)
 		end)
-		
+
 		if success then
 			data = HttpService:JSONDecode(data)
 			--print(data)
@@ -216,22 +226,20 @@ MarketplaceService.ProcessReceipt = function(receiptInfo)
 		else
 			return Enum.ProductPurchaseDecision.NotProcessedYet
 		end
-		
+
 		success, data = pcall(function()
-			return HttpService:RequestAsync(
-				{
-					Url = `{serverUrl}v1/users/{receiptInfo.PlayerId}/{productInfo.id}?isPurchase=true`,
-					Method = "POST",
-					Headers = {Authorization = `Bearer {apiKey}`}
-				}
-			)
+			return HttpService:RequestAsync({
+				Url = `{serverUrl}v1/users/{receiptInfo.PlayerId}/{productInfo.id}?isPurchase=true`,
+				Method = "POST",
+				Headers = { Authorization = `Bearer {apiKey}` },
+			})
 		end)
 		--print(success, data)
 		if success then
 			return Enum.ProductPurchaseDecision.PurchaseGranted
 		end
 	end
-	
+
 	return Enum.ProductPurchaseDecision.NotProcessedYet
 end
 
@@ -240,23 +248,23 @@ functions.getUIConfiguration = function()
 	configCopy.APIKey = nil
 	configCopy.ServerAddress = nil
 	configCopy.cartEnabled = cartEnabled
-	
+
 	return configCopy
 end
 
 functions.isVerified = function(player: Player)
-	if serverIsOnline == false then return end
-	
+	if serverIsOnline == false then
+		return
+	end
+
 	local success, data = pcall(function()
-		return HttpService:RequestAsync(
-			{
-				Url = `{serverUrl}v1/users/{player.UserId}/verify/key`,
-				Method = "POST",
-				Headers = {Authorization = `Bearer {apiKey}`}
-			}
-		)
+		return HttpService:RequestAsync({
+			Url = `{serverUrl}v1/users/{player.UserId}/verify/key`,
+			Method = "POST",
+			Headers = { Authorization = `Bearer {apiKey}` },
+		})
 	end)
-	
+
 	if success then
 		data = HttpService:JSONDecode(data.Body)
 		if data["message"] == "User Already Verified" then
@@ -265,24 +273,24 @@ functions.isVerified = function(player: Player)
 			return data["data"]
 		end
 	end
+	return false
 end
 
 functions.getProducts = function()
-	local productsArray:{product} = {}
-	for _,productInfo:product in pairs(products) do
+	local productsArray: { product } = {}
+	for _, productInfo: product in pairs(products) do
 		table.insert(productsArray, productInfo)
 	end
 	return productsArray
 end
 
 functions.getTags = function()
-	local tagsArray:{product} = {}
-	for _,tagInfo:tag in pairs(tags) do
+	local tagsArray: { tag } = {}
+	for _, tagInfo: tag in pairs(tags) do
 		table.insert(tagsArray, tagInfo)
 	end
 	return tagsArray
 end
-
 
 events.purchaseProduct = function(player: Player, productId: number)
 	if products[productId] then
@@ -291,8 +299,8 @@ events.purchaseProduct = function(player: Player, productId: number)
 end
 
 PlayerReady.OnServerEvent:Connect(function(player: Player)
-	task.wait(.5)
-	
+	task.wait(0.5)
+
 	if (serverIsOnline == nil and isServerOnline()) or serverIsOnline == true then
 		PlayerReady:FireClient(player)
 	end
@@ -302,6 +310,7 @@ RemoteFunction.OnServerInvoke = function(player: Player, func: string, ...)
 	if functions[func] ~= nil then
 		return functions[func](player, ...)
 	end
+	return false
 end
 
 RemoteEvent.OnServerEvent:Connect(function(player: Player, func: string, ...)
