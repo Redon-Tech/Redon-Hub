@@ -36,7 +36,7 @@
                 "$path": "src/server"
             },
             "Configuration": {
-                "$path": "configs/catppuccin-mocha.lua"
+                "$path": "configs/catppuccin-mocha.luau"
             }
         },
         "StarterGui": {

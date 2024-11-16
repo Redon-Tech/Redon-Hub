@@ -5,7 +5,7 @@ name = "pypi"
 
 [packages]
 "discord.py" = "==2.4.0"
-regex = "==2024.11.7"
+regex = "==2024.11.6"
 apscheduler = "==3.10.4"
 python-dotenv = "==1.0.1"
 fastapi = "==0.115.5"
