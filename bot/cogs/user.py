@@ -19,6 +19,7 @@ from bot.data import (
     get_products,
 )
 from bot.utils import ConfirmView, JumpToMessageView, handlePurchase, handleRevoke
+from bot import Bot
 from typing import Optional
 import logging
 
@@ -26,7 +27,7 @@ _log = logging.getLogger(__name__)
 
 
 class User(Cog):
-    def __init__(self, bot):
+    def __init__(self, bot: Bot):
         self.bot = bot
 
     user_commands = app_commands.Group(name="user", description="User Commands")
@@ -39,7 +40,20 @@ class User(Cog):
 
     @app_commands.command(name="profile", description="View a user's profile")
     async def user_profile(self, interaction: Interaction, member: Optional[Member]):
-        member = member or interaction.user
+        if member is None:
+            if isinstance(interaction.user, Member):
+                member = interaction.user
+            else:
+                await interaction.response.send_message(
+                    embed=Embed(
+                        title="Error",
+                        description="Unable to retrieve member information.",
+                        colour=interaction.user.colour,
+                        timestamp=utils.utcnow(),
+                    ).set_footer(text=f"Redon Hub • Version {self.bot.version}")
+                )
+                return
+
         try:
             user = await get_user_by_discord_id(member.id)
         except Exception as e:
@@ -55,7 +69,9 @@ class User(Cog):
                     timestamp=utils.utcnow(),
                 )
                 .set_footer(text=f"Redon Hub • Version {self.bot.version}")
-                .set_author(name=member.name, icon_url=member.avatar.url)
+                .set_author(
+                    name=member.name, icon_url=member.avatar and member.avatar.url
+                )
             )
 
             embed.add_field(
@@ -88,7 +104,9 @@ class User(Cog):
                     timestamp=utils.utcnow(),
                 )
                 .set_footer(text=f"Redon Hub • Version {self.bot.version}")
-                .set_author(name=member.name, icon_url=member.avatar.url)
+                .set_author(
+                    name=member.name, icon_url=member.avatar and member.avatar.url
+                )
             )
 
     @app_commands.command(name="retrieve", description="Retrieve your product")
@@ -108,10 +126,11 @@ class User(Cog):
 
         if product and user and product.id in user.purchases:
             try:
-                if interaction.user.dm_channel is None:
-                    await interaction.user.create_dm()
+                dm_channel = interaction.user.dm_channel
+                if dm_channel is None:
+                    dm_channel = await interaction.user.create_dm()
 
-                message = await interaction.user.dm_channel.send(
+                message = await dm_channel.send(
                     embed=Embed(
                         title="Product Retrieved",
                         description=f"Thanks for purchasing from us! You can find the information link below.",
@@ -431,25 +450,7 @@ class User(Cog):
                 )
 
                 try:
-                    await handlePurchase(self, user, product)
-                    # if interaction.user.dm_channel is None:
-                    #     await interaction.user.create_dm()
-
-                    # await interaction.user.dm_channel.send(
-                    #     embed=Embed(
-                    #         title="Product Retrieved",
-                    #         description=f"Thanks for purchasing from us! You can find the information link below.",
-                    #         colour=interaction.user.colour,
-                    #         timestamp=utils.utcnow(),
-                    #     )
-                    #     .set_footer(text=f"Redon Hub • Version {self.bot.version}")
-                    #     .add_field(name="Product", value=product.name, inline=True)
-                    #     .add_field(
-                    #         name="Attachments",
-                    #         value="\n".join(product.attachments) or "None",
-                    #         inline=False,
-                    #     )
-                    # )
+                    await handlePurchase(self, user, product)  # type: ignore
                 except Exception as e:
                     pass
             except Exception as e:
@@ -540,7 +541,7 @@ class User(Cog):
                 )
 
                 try:
-                    await handleRevoke(self, user, product)
+                    await handleRevoke(self, user, product)  # type: ignore
                 except Exception as e:
                     pass
             except Exception as e:
@@ -602,5 +603,5 @@ class User(Cog):
         _log.info(f"Cog {__name__} ready")
 
 
-async def setup(bot):
+async def setup(bot: Bot):
     await bot.add_cog(User(bot))

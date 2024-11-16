@@ -53,7 +53,7 @@ class Bot(BotBase):
     async def on_ready(self):
         if not self.ready:
             self.ready = True
-            _log.info(f"Bot Online | {self.user} | {self.user.id}")
+            _log.info(f"Bot Online | {self.user} | {self.user and self.user.id}")
 
             await database.connect()
 

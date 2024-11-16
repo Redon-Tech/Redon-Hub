@@ -2,12 +2,13 @@
     File: /bot/utils/confirmView.py
     Usage: A view for confirming items
 """
-from typing import Any, Coroutine, Optional
-from discord import ui, Interaction, ButtonStyle, Message
+
+from typing import Union
+from discord import ui, Interaction, ButtonStyle, Message, User, Member
 
 
 class ConfirmView(ui.View):
-    def __init__(self, user, *, timeout: float = 60.0):
+    def __init__(self, user: Union[User, Member], *, timeout: float = 60.0):
         self.user = user
         super().__init__(timeout=timeout)
         self.value = None

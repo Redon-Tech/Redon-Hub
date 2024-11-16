@@ -1,10 +1,11 @@
 from prisma import Prisma
+from prisma.models import User as UserModel
 from .. import config, database as db
 import json
 
 
 class User:
-    def __init__(self, dbResponse) -> None:
+    def __init__(self, dbResponse: UserModel) -> None:
         self.id = dbResponse.id
         self.createdAt = dbResponse.createdAt
         self.discordId = dbResponse.discordId
@@ -25,7 +26,7 @@ class User:
 
     @property
     def purchases(self) -> list:
-        if type(self._purchases) == list:
+        if isinstance(self._purchases, list):
             return self._purchases
 
         return json.loads(self._purchases)
@@ -46,20 +47,20 @@ class User:
             data={
                 "discordId": self.discordId,
                 "verifiedAt": self.verifiedAt,
-                "purchases": self._purchases,
+                "purchases": self._purchases,  # type: ignore
             },
         )
 
 
 async def get_user(id: int) -> User:
-    user = await db.user.find_unique(
+    user = await db.user.find_unique_or_raise(
         where={"id": id},
     )
     return User(user)
 
 
 async def get_user_by_discord_id(discord_id: int) -> User:
-    user = await db.user.find_first(
+    user = await db.user.find_first_or_raise(
         where={"discordId": discord_id},
     )
     return User(user)
@@ -74,7 +75,7 @@ async def create_user(id: int) -> User:
     user = await db.user.create(
         data={
             "id": id,
-            "purchases": json.dumps([]),
+            "purchases": json.dumps([]),  # type: ignore
         },
     )
     return User(user)

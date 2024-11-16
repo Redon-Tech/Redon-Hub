@@ -2,13 +2,14 @@
     File: /bot/cogs/api.py
     Usage: Responsible for the creation of the API
 """
+
 from discord.ext.commands import Cog
 from discord.ext.tasks import loop
-from discord import app_commands, Interaction, Embed, utils
-from fastapi import FastAPI, HTTPException, Depends, WebSocket, Security, status
-from fastapi.security.api_key import APIKeyHeader, APIKey
+from discord import app_commands, Interaction
+from fastapi import FastAPI, HTTPException, Depends, Security, status
+from fastapi.security.api_key import APIKeyHeader
 from starlette.responses import RedirectResponse
-from bot import config
+from bot import config, Bot
 from bot.data import (
     get_user,
     get_users,
@@ -24,6 +25,9 @@ from bot.data import (
     create_tag,
     delete_tag,
     is_connected,
+    Product as ProductModel,
+    User as UserModel,
+    Tag as TagModel,
 )
 from bot.utils import handlePurchase, handleRevoke
 from pydantic import BaseModel
@@ -35,7 +39,6 @@ import uvicorn
 import logging
 import random
 import string
-import os
 
 load_dotenv()
 
@@ -74,7 +77,7 @@ app = FastAPI(
         },
     ],
 )
-app.logger = _log
+app.logger = _log  # type: ignore
 cog = None
 X_API_KEY = APIKeyHeader(name="Authorization", auto_error=False)
 verificationKeys = {}
@@ -106,6 +109,12 @@ class TagDisplay(BaseModel):
 
 
 class Tag(BaseModel):
+    name: str
+    color: list[int]
+    textColor: list[int]
+
+
+class TagOptional(BaseModel):
     name: Union[str, None] = None
     color: Union[list[int], None] = None
     textColor: Union[list[int], None] = None
@@ -130,11 +139,11 @@ class Product(BaseModel):
     name: Union[str, None] = None
     description: Union[str, None] = None
     imageId: Union[str, None] = None
-    price: Union[float, None] = None
-    productId: Union[float, None] = None
+    price: Union[int, None] = None
+    productId: Union[int, None] = None
     stock: Union[int, None] = None
     attachments: Union[list[str], None] = None
-    tags: Union[int, None] = None
+    tags: Union[list[int], None] = None
 
 
 class Verification(BaseModel):
@@ -148,8 +157,41 @@ class APIStatus(BaseModel):
     version: str
 
 
+## Basic Functions
+async def getUserOrRaise(user_id: int, discordId: bool = False) -> UserModel:
+    try:
+        if discordId:
+            return await get_user_by_discord_id(user_id)
+        else:
+            return await get_user(user_id)
+    except Exception as e:
+        raise HTTPException(status_code=404, detail="User Not Found")
+
+
+async def getProductByIntOrStringOrRaise(product_id: Union[int, str]) -> ProductModel:
+    if isinstance(product_id, str):
+        if product_id.isdigit():
+            product_id = int(product_id)
+        else:
+            try:
+                return await get_product_by_name(product_id)
+            except Exception as e:
+                raise HTTPException(status_code=404, detail="Product Not Found")
+
+    if isinstance(product_id, int):
+        try:
+            return await get_product(product_id)
+        except Exception as e:
+            raise HTTPException(status_code=404, detail="Product Not Found")
+
+    raise HTTPException(status_code=404, detail="Product Not Found")
+
+
+## Routes
+
+
 @app.get("/")
-async def root() -> APIStatus:
+async def root() -> RedirectResponse:
     """
     Redirections to /v1
     """
@@ -164,31 +206,6 @@ async def v1() -> APIStatus:
     return APIStatus(
         message="Online", databaseConnected=is_connected(), version=version
     )
-
-
-## Websocket
-# @app.websocket("/v1/socket")
-# async def websocket_endpoint(websocket: WebSocket):
-#     await websocket.accept()
-#     if websocket.headers.get("Authorization") != f"Bearer {config.API.Key}":
-#         await websocket.close(code=1008)
-#         return
-#     while True:
-#         data = await websocket.receive_json()
-#         if data.get("type") == "verify_user":
-#             _log.info(f"Got Verification Request for {data.get('data')}")
-
-#             try:
-#                 user = await get_user(data.get("data"))
-#             except Exception as e:
-#                 user = None
-
-#             if not user or user.discordId == 0:
-#                 key = "".join(random.choices(string.ascii_letters + string.digits, k=5))
-#                 verificationKeys[key] = data.get("data")
-#                 await websocket.send_json({"data": key})
-#             else:
-#                 await websocket.send_json({"data": "user_verified"})
 
 
 ## Users
@@ -220,7 +237,7 @@ async def users_get() -> dict[int, UserDisplay]:
 
     results = {}
     for user in users:
-        results[user.id] = UserDisplay(**user.dict())
+        results[user.id] = UserDisplay(**user.model_dump())
 
     return results
 
@@ -289,27 +306,10 @@ async def users_give_user_product(
     """
     Gives a user a specific product, please note this does not increment the purchases counter on the product by default you must enable it.
     """
-    try:
-        if discordId:
-            user = await get_user_by_discord_id(user_id)
-        else:
-            user = await get_user(user_id)
-    except Exception as e:
-        return False
-
-    if type(product_id) == str:
-        if product_id.isdigit():
-            product_id = int(product_id)
-        else:
-            try:
-                product_info = await get_product_by_name(product_id)
-                product_id = product_info.id
-            except Exception as e:
-                raise HTTPException(status_code=404, detail="Product Not Found")
+    user = await getUserOrRaise(user_id, discordId)
+    product = await getProductByIntOrStringOrRaise(product_id)
 
     try:
-        product = await get_product(product_id)
-
         if product.id not in user.purchases:
             user.purchases.append(product.id)
             await user.push()
@@ -319,27 +319,7 @@ async def users_give_user_product(
             await product.push()
 
             try:
-                await handlePurchase(cog, user, product)
-                # if user.discordId != 0:
-                #     discordUser = await cog.bot.fetch_user(user.discordId)
-                #     if discordUser.dm_channel is None:
-                #         await discordUser.create_dm()
-
-                #     await discordUser.dm_channel.send(
-                #         embed=Embed(
-                #             title="Product Retrieved",
-                #             description=f"Thanks for purchasing from us! You can find the information link below.",
-                #             colour=discordUser.accent_color or discordUser.color,
-                #             timestamp=utils.utcnow(),
-                #         )
-                #         .set_footer(text=f"Redon Hub • Version {version}")
-                #         .add_field(name="Product", value=product.name, inline=True)
-                #         .add_field(
-                #             name="Attachments",
-                #             value="\n".join(product.attachments) or "None",
-                #             inline=False,
-                #         )
-                #     )
+                await handlePurchase(cog, user, product)  # type: ignore
             except Exception as e:
                 pass
 
@@ -358,27 +338,10 @@ async def users_revoke_user_product(
     """
     Revokes a users product.
     """
-    try:
-        if discordId:
-            user = await get_user_by_discord_id(user_id)
-        else:
-            user = await get_user(user_id)
-    except Exception as e:
-        return False
-
-    if type(product_id) == str:
-        if product_id.isdigit():
-            product_id = int(product_id)
-        else:
-            try:
-                product_info = await get_product_by_name(product_id)
-                product_id = product_info.id
-            except Exception as e:
-                raise HTTPException(status_code=404, detail="Product Not Found")
+    user = await getUserOrRaise(user_id, discordId)
+    product = await getProductByIntOrStringOrRaise(product_id)
 
     try:
-        product = await get_product(product_id)
-
         if product.id in user.purchases:
             user.purchases.remove(product.id)
             await user.push()
@@ -386,7 +349,7 @@ async def users_revoke_user_product(
             await product.push()
 
         try:
-            await handleRevoke(cog, user, product)
+            await handleRevoke(cog, user, product)  # type: ignore
         except Exception as e:
             pass
 
@@ -418,10 +381,8 @@ async def users_post_verify(user_id: int) -> Verification:
 
         key = "".join(random.choices(string.ascii_letters + string.digits, k=5))
         verificationKeys[key] = user_id
-        # return {"message": "Verification Key Created", "data": key}
         return Verification(message="Verification Key Created", data=key)
     else:
-        # return {"message": "User Already Verified"}
         return Verification(message="User Already Verified", data=None)
 
 
@@ -441,7 +402,7 @@ async def products_get() -> dict[int, ProductDisplay]:
 
     results = {}
     for product in products:
-        results[product.id] = ProductDisplay(**product.dict())
+        results[product.id] = ProductDisplay(**product.model_dump())
 
     return results
 
@@ -453,22 +414,7 @@ async def products_get_product(product_id: Union[int, str]) -> ProductDisplay:
     """
     Gets a specific product from the database.
     """
-    if type(product_id) == str:
-        if product_id.isdigit():
-            product_id = int(product_id)
-        else:
-            try:
-                product_info = await get_product_by_name(product_id)
-                product_id = product_info.id
-            except Exception as e:
-                raise HTTPException(
-                    status_code=404, detail="Product Not Found (By Name)"
-                )
-
-    try:
-        product = await get_product(product_id)
-    except Exception as e:
-        raise HTTPException(status_code=404, detail="Product Not Found")
+    product = await getProductByIntOrStringOrRaise(product_id)
 
     return ProductDisplay(**product.dict())
 
@@ -483,8 +429,15 @@ async def products_post(product: Product) -> ProductDisplay:
     """
     Creates a new product.
     """
+    if product.name is None:
+        raise HTTPException(status_code=400, detail="Name is required.")
+    if product.price is None:
+        raise HTTPException(status_code=400, detail="Price is required.")
+    if product.productId is None:
+        raise HTTPException(status_code=400, detail="Product ID is required.")
+
     try:
-        product = await create_product(
+        createdProduct = await create_product(
             product.name,
             product.description,
             product.imageId,
@@ -498,7 +451,7 @@ async def products_post(product: Product) -> ProductDisplay:
         _log.error(e)
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
-    return ProductDisplay(**product.dict())
+    return ProductDisplay(**createdProduct.dict())
 
 
 @app.patch(
@@ -512,30 +465,21 @@ async def products_patch(
 
     This is a patch meaning you don't have to pass all the data in the product object.
     """
-    if type(product_id) == str:
-        if product_id.isdigit():
-            product_id = int(product_id)
-        else:
-            try:
-                product_info = await get_product_by_name(product_id)
-                product_id = product_info.id
-            except Exception as e:
-                raise HTTPException(status_code=404, detail="Product Not Found")
 
     try:
-        updated_product = product.dict(exclude_unset=True)
-        product = await get_product(product_id)
+        updated_product = product.model_dump(exclude_unset=True)
+        newProduct = await getProductByIntOrStringOrRaise(product_id)
 
         print(updated_product)
         for key, value in updated_product.items():
             setattr(product, key, value)
 
-        await product.push()
+        await newProduct.push()
     except Exception as e:
         _log.error(e)
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
-    return ProductDisplay(**product.dict())
+    return ProductDisplay(**newProduct.dict())
 
 
 @app.delete(
@@ -547,20 +491,23 @@ async def products_delete(product_id: Union[int, str]) -> bool:
 
     **CAN NOT BE UNDONE!**
     """
-    if type(product_id) == str:
-        if product_id.isdigit():
-            product_id = int(product_id)
-        else:
-            try:
-                product_info = await get_product_by_name(product_id)
-                product_id = product_info.id
-            except Exception as e:
-                raise HTTPException(status_code=404, detail="Product Not Found")
 
     try:
-        await delete_product(product_id)
+        if type(product_id) == str:
+            if product_id.isdigit():
+                await delete_product(int(product_id))
+            else:
+                try:
+                    product_info = await get_product_by_name(product_id)
+                    product_id = product_info.id
+                except Exception as e:
+                    raise HTTPException(status_code=404, detail="Product Not Found")
+        elif type(product_id) == int:
+            await delete_product(product_id)
     except Exception as e:
         _log.error(e)
+        if isinstance(e, HTTPException):
+            raise e
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
     return True
@@ -611,36 +558,34 @@ async def tags_post(tag: Tag) -> TagDisplay:
     Creates a new tag.
     """
     try:
-        tag = await create_tag(tag.name, tag.color, tag.textColor)
+        newTag = await create_tag(tag.name, tag.color, tag.textColor)
     except Exception as e:
         _log.error(e)
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
-    return TagDisplay(**tag.dict())
+    return TagDisplay(**newTag.dict())
 
 
 @app.patch("/v1/tags/{tag_id}", dependencies=[Depends(api_auth)], tags=["Tags"])
-async def tags_patch(tag_id: int, tag: Tag) -> TagDisplay:
+async def tags_patch(tag_id: int, tag: TagOptional) -> TagDisplay:
     """
     Updates a tag.
 
     This is a patch meaning you don't have to pass all the data in the tag object.
     """
     try:
-        updated_tag = tag.dict(exclude_unset=True)
-        tag = await get_tag(tag_id)
+        updated_tag = tag.model_dump(exclude_unset=True)
+        newTag = await get_tag(tag_id)
 
         for key, value in updated_tag.items():
             setattr(tag, key, value)
 
-        await tag.push()
-
-        tag = await get_tag(tag_id)
+        await newTag.push()
     except Exception as e:
         _log.error(e)
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
-    return TagDisplay(**tag.dict())
+    return TagDisplay(**newTag.dict())
 
 
 @app.delete("/v1/tags/{tag_id}", dependencies=[Depends(api_auth)], tags=["Tags"])
@@ -670,11 +615,11 @@ server = uvicorn.Server(
 
 
 class API(Cog):
-    def __init__(self, bot):
+    def __init__(self, bot: Bot):
         self.bot = bot
         self.isRunning.start()
 
-    def cog_unload(self):
+    async def cog_unload(self):
         self.isRunning.cancel()
 
     def overwrite_uvicorn_logger(self):
@@ -745,5 +690,5 @@ class API(Cog):
         _log.info(f"Cog {__name__} ready")
 
 
-async def setup(bot):
+async def setup(bot: Bot):
     await bot.add_cog(API(bot))

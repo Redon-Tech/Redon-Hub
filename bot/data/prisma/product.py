@@ -1,11 +1,12 @@
 from prisma import Prisma
+from prisma.models import Product as ProductModel
 from .. import config, database as db
 from typing import Optional
 import json
 
 
 class Product:
-    def __init__(self, dbResponse) -> None:
+    def __init__(self, dbResponse: ProductModel) -> None:
         self.id = dbResponse.id
         self.createdAt = dbResponse.createdAt
         self.name = dbResponse.name
@@ -42,7 +43,7 @@ class Product:
 
     @property
     def attachments(self) -> list:
-        if type(self._attachments) == list:
+        if isinstance(self._attachments, list):
             return self._attachments
 
         return json.loads(self._attachments)
@@ -56,7 +57,7 @@ class Product:
 
     @property
     def tags(self) -> list:
-        if type(self._tags) == list:
+        if isinstance(self._tags, list):
             return self._tags
 
         return json.loads(self._tags)
@@ -87,19 +88,19 @@ class Product:
                 "tags": self._tags,
                 "purchases": self.purchases,
                 "owners": self.owners,
-            },
+            },  # type: ignore
         )
 
 
 async def get_product(id: int) -> Product:
-    product = await db.product.find_unique(
+    product = await db.product.find_unique_or_raise(
         where={"id": id},
     )
     return Product(product)
 
 
 async def get_product_by_name(name: str) -> Product:
-    product = await db.product.find_unique(
+    product = await db.product.find_unique_or_raise(
         where={"name": name},
     )
     return Product(product)
@@ -116,12 +117,18 @@ async def create_product(
     imageId: Optional[str],
     price: int,
     productId: int,
-    attachments: Optional[list],
-    tags: Optional[list],
+    stock: Optional[int],
+    attachments: Optional[list[str]],
+    tags: Optional[list[int]],
 ) -> Product:
+    _attachments = None
+    _tags = None
     if config.Data.Database == "mysql":
-        attachments = json.dumps(attachments)
-        tags = json.dumps(tags)
+        _attachments = json.dumps(attachments)
+        _tags = json.dumps(tags)
+    else:
+        _attachments = attachments
+        _tags = tags
 
     prod = await db.product.create(
         data={
@@ -130,9 +137,9 @@ async def create_product(
             "imageId": imageId or "",
             "price": price,
             "productId": productId,
-            "attachments": attachments,
-            "tags": tags,
-        },
+            "attachments": _attachments,
+            "tags": _tags,
+        },  # type: ignore
     )
     product = Product(prod)
 

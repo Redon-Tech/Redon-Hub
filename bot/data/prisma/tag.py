@@ -1,10 +1,11 @@
 from prisma import Prisma
+from prisma.models import Tag as TagModel
 from .. import config, database as db
 import json
 
 
 class Tag:
-    def __init__(self, dbResponse) -> None:
+    def __init__(self, dbResponse: TagModel) -> None:
         self.id = dbResponse.id
         self.createdAt = dbResponse.createdAt
         self.name = dbResponse.name
@@ -25,7 +26,7 @@ class Tag:
 
     @property
     def color(self) -> list:
-        if type(self._color) == list:
+        if isinstance(self._color, list):
             return self._color
 
         return json.loads(self._color)
@@ -39,7 +40,7 @@ class Tag:
 
     @property
     def textColor(self) -> list:
-        if type(self._textColor) == list:
+        if isinstance(self._textColor, list):
             return self._textColor
 
         return json.loads(self._textColor)
@@ -62,19 +63,19 @@ class Tag:
                 "name": self.name,
                 "color": self._color,
                 "textColor": self._textColor,
-            },
+            },  # type: ignore
         )
 
 
 async def get_tag(id: int) -> Tag:
-    tag = await db.tag.find_unique(
+    tag = await db.tag.find_unique_or_raise(
         where={"id": id},
     )
     return Tag(tag)
 
 
 async def get_tag_by_name(name: str) -> Tag:
-    tag = await db.tag.find_unique(
+    tag = await db.tag.find_unique_or_raise(
         where={"name": name},
     )
     return Tag(tag)
@@ -86,16 +87,21 @@ async def get_tags() -> list[Tag]:
 
 
 async def create_tag(name: str, color: list, textColor: list) -> Tag:
+    _color = None
+    _textColor = None
     if config.Data.Database == "mysql":
-        color = json.dumps(color)
-        textColor = json.dumps(textColor)
+        _color = json.dumps(color)
+        _textColor = json.dumps(textColor)
+    else:
+        _color = color
+        _textColor = textColor
 
     tag = await db.tag.create(
         data={
             "name": name,
-            "color": color,
-            "textColor": textColor,
-        },
+            "color": _color,
+            "textColor": _textColor,
+        },  # type: ignore
     )
     return Tag(tag)
 

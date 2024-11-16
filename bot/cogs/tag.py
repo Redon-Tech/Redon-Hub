@@ -13,6 +13,7 @@ from discord import (
 )
 from discord.ext.commands import Cog
 from bot.data import get_tag, get_tag_by_name, get_tags, create_tag, delete_tag, Tag
+from bot import Bot, __version__ as version
 from PIL import ImageColor
 import logging
 
@@ -28,7 +29,7 @@ class createTag(ui.Modal, title="Create Tag"):
         label="Text Color", placeholder="In RGB. For example: rgb(255,255,255)"
     )
 
-    def __init__(self, bot, **kwargs):
+    def __init__(self, bot: Bot, **kwargs):
         self.bot = bot
         super().__init__(**kwargs)
 
@@ -36,8 +37,8 @@ class createTag(ui.Modal, title="Create Tag"):
         await interaction.response.defer()
 
         try:
-            color = ImageColor.getrgb(self.color.value)
-            textColor = ImageColor.getrgb(self.textColor.value)
+            color = list(ImageColor.getrgb(self.color.value))
+            textColor = list(ImageColor.getrgb(self.textColor.value))
             tag = await create_tag(
                 name=self.name.value,
                 color=color,
@@ -65,13 +66,13 @@ class createTag(ui.Modal, title="Create Tag"):
 
 
 class deleteTagSelect(ui.Select):
-    def __init__(self, tags, **kwargs):
+    def __init__(self, tags: list[Tag], **kwargs):
         options = []
         for kwarg in kwargs:
             setattr(self, kwarg, kwargs[kwarg])
 
         for tag in tags:
-            options.append(SelectOption(label=tag.name, value=tag.id))
+            options.append(SelectOption(label=tag.name, value=str(tag.id)))
 
         super().__init__(
             placeholder="Select tag",
@@ -106,7 +107,7 @@ class deleteTagSelect(ui.Select):
                     description=f"Succesfully deleted:\n{', '.join(deletedTags)}",
                     colour=interaction.user.colour,
                     timestamp=utils.utcnow(),
-                ).set_footer(text=f"Redon Hub • Version {self.bot.version}"),
+                ).set_footer(text=f"Redon Hub • Version {version}"),
                 view=None,
             )
 
@@ -117,7 +118,7 @@ class deleteTagSelect(ui.Select):
                     description=f"Failed to delete:\n{', '.join(failedTags)}",
                     colour=interaction.user.colour,
                     timestamp=utils.utcnow(),
-                ).set_footer(text=f"Redon Hub • Version {self.bot.version}"),
+                ).set_footer(text=f"Redon Hub • Version {version}"),
             )
 
 
@@ -128,7 +129,7 @@ class deleteTagView(ui.View):
 
 
 class updateTag(ui.Modal, title="Update Tag"):
-    def __init__(self, bot, tag: Tag):
+    def __init__(self, bot: Bot, tag: Tag):
         self.bot = bot
         self.tag = tag
         super().__init__()
@@ -152,12 +153,13 @@ class updateTag(ui.Modal, title="Update Tag"):
     async def on_submit(self, interaction: Interaction) -> None:
         try:
             for item in self.children:
-                if item.label == "Tag Name":
-                    self.tag.name = item.value
-                elif item.label == "Color":
-                    self.tag.color = ImageColor.getrgb(item.value)
-                elif item.label == "Text Color":
-                    self.tag.textColor = ImageColor.getrgb(item.value)
+                if isinstance(item, ui.TextInput):
+                    if item.label == "Tag Name":
+                        self.tag.name = item.value
+                    elif item.label == "Color":
+                        self.tag.color = list(ImageColor.getrgb(item.value))
+                    elif item.label == "Text Color":
+                        self.tag.textColor = list(ImageColor.getrgb(item.value))
 
             await self.tag.push()
 
@@ -171,7 +173,6 @@ class updateTag(ui.Modal, title="Update Tag"):
             )
         except Exception as e:
             _log.error(e)
-            # await interaction.followup.send(
             await interaction.response.send_message(
                 embed=Embed(
                     title="Error",
@@ -183,7 +184,7 @@ class updateTag(ui.Modal, title="Update Tag"):
 
 
 class TagCog(Cog):
-    def __init__(self, bot):
+    def __init__(self, bot: Bot):
         self.bot = bot
 
     tag_commands = app_commands.Group(name="tag", description="Tag Commands")
@@ -319,5 +320,5 @@ class TagCog(Cog):
         _log.info(f"Cog {__name__} ready")
 
 
-async def setup(bot):
+async def setup(bot: Bot):
     await bot.add_cog(TagCog(bot))

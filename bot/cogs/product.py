@@ -13,6 +13,7 @@ from discord import (
     SelectOption,
     ButtonStyle,
     Role,
+    TextChannel,
 )
 from discord.app_commands import MissingPermissions
 from asyncio import TimeoutError
@@ -25,8 +26,9 @@ from bot.data import (
     delete_product,
     get_tags,
     Product,
+    Tag,
 )
-from bot import config
+from bot import config, Bot
 from bot.utils import ConfirmView
 from typing import Optional
 import logging
@@ -109,11 +111,11 @@ async def promptChooseAttachments(
             break
         else:
             if re.match(
-                "http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+",
+                "http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+",  # type: ignore
                 message.content,
             ):
                 links = re.findall(
-                    "http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+",
+                    "http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+",  # type: ignore
                     message.content,
                 )
 
@@ -145,8 +147,6 @@ async def promptChooseAttachments(
     for message in user_messages:
         await message.delete()
 
-    # await info_message.delete()
-
     return attachments
 
 
@@ -164,10 +164,10 @@ async def promptCreateProductChooseAttachments(self, interaction: Interaction):
             imageId=self.imageId.value,
             price=int(self.price.value),
             productId=int(self.productId.value),
+            stock=None,
             attachments=attachments,
             tags=tags,
         )
-        # await interaction.followup.send(
         await interaction.edit_original_response(
             embed=Embed(
                 title="Product Created",
@@ -179,7 +179,6 @@ async def promptCreateProductChooseAttachments(self, interaction: Interaction):
         )
     except Exception as e:
         _log.error(e)
-        # await interaction.followup.send(
         await interaction.edit_original_response(
             embed=Embed(
                 title="Error",
@@ -195,11 +194,12 @@ async def promptUpdateProductChooseAttachments(
     self, interaction: Interaction, product: Product
 ):
     attachments = await promptChooseAttachments(self, interaction, product)
+    if attachments is None:
+        return
 
     try:
         product.attachments = attachments
         await product.push()
-        # await interaction.followup.send(
         await interaction.edit_original_response(
             embed=Embed(
                 title="Product Updated",
@@ -214,18 +214,19 @@ async def promptUpdateProductChooseAttachments(
             await sendUpdatedProductFiles(self, self.product)
         except Exception as e:
             _log.error(e)
-            await interaction.channel.send(
-                embed=Embed(
-                    title="Error",
-                    description="An unknown error has prevented sending updated files.\n**The product was still updated, users just have to manually retrieve the files**",
-                    colour=interaction.user.colour,
-                    timestamp=utils.utcnow(),
-                ).set_footer(text=f"Redon Hub • Version {self.bot.version}"),
-                view=None,
-            )
+            if interaction.channel is not None and isinstance(
+                interaction.channel, TextChannel
+            ):
+                await interaction.channel.send(
+                    embed=Embed(
+                        title="Error",
+                        description="An unknown error has prevented sending updated files.\n**The product was still updated, users just have to manually retrieve the files**",
+                        colour=interaction.user.colour,
+                        timestamp=utils.utcnow(),
+                    ).set_footer(text=f"Redon Hub • Version {self.bot.version}")
+                )
     except Exception as e:
         _log.error(e)
-        # await interaction.followup.send(
         await interaction.edit_original_response(
             embed=Embed(
                 title="Error",
@@ -238,13 +239,13 @@ async def promptUpdateProductChooseAttachments(
 
 
 class createProductSelectTags(ui.Select):
-    def __init__(self, tags, **kwargs):
+    def __init__(self, tags: list[Tag], **kwargs):
         options = []
         for kwarg in kwargs:
             setattr(self, kwarg, kwargs[kwarg])
 
         for tag in tags:
-            options.append(SelectOption(label=tag.name, value=tag.id))
+            options.append(SelectOption(label=tag.name, value=str(tag.id)))
 
         super().__init__(
             placeholder="Select tags for your product",
@@ -273,7 +274,7 @@ class createProductSelectTagsNone(ui.Button):
 
 
 class createProductSelectTagsView(ui.View):
-    def __init__(self, tags, **kwargs):
+    def __init__(self, tags: list[Tag], **kwargs):
         super().__init__()
         self.add_item(createProductSelectTags(tags, **kwargs))
         self.add_item(createProductSelectTagsNone(**kwargs))
@@ -293,7 +294,7 @@ class createProduct(ui.Modal, title="Create Product"):
         placeholder="rbxassetid format. Example: rbxassetid://1234567890",
     )
 
-    def __init__(self, bot, **kwargs):
+    def __init__(self, bot: Bot, **kwargs):
         self.bot = bot
         super().__init__(**kwargs)
 
@@ -330,69 +331,6 @@ class createProduct(ui.Modal, title="Create Product"):
             await promptCreateProductChooseAttachments(self, interaction)
 
 
-# class deleteProductSelect(ui.Select):
-#     def __init__(self, products, **kwargs):
-#         options = []
-#         for kwarg in kwargs:
-#             setattr(self, kwarg, kwargs[kwarg])
-
-#         for product in products:
-#             options.append(SelectOption(label=product.name, value=product.id))
-
-#         super().__init__(
-#             placeholder="Select product",
-#             min_values=1,
-#             max_values=len(options),
-#             options=options,
-#         )
-
-#     async def callback(self, interaction: Interaction):
-#         await interaction.response.defer()
-#         deletedProducts = []
-#         failedProducts = []
-#         for product in self.values:
-#             product_name = product
-#             try:
-#                 product_data = await get_product(int(product))
-#                 product_name = product_data.name
-#             except Exception as e:
-#                 _log.error(e)
-
-#             try:
-#                 await delete_product(int(product))
-#                 deletedProducts.append(product_name)
-#             except Exception as e:
-#                 _log.error(e)
-#                 failedProducts.append(product_name)
-
-#         if len(deletedProducts) > 0:
-#             await interaction.edit_original_response(
-#                 embed=Embed(
-#                     title="Product Deleted",
-#                     description=f"Succesfully deleted:\n{', '.join(deletedProducts)}",
-#                     colour=interaction.user.colour,
-#                     timestamp=utils.utcnow(),
-#                 ).set_footer(text=f"Redon Hub • Version {self.bot.version}"),
-#                 view=None,
-#             )
-
-#         if len(failedProducts) > 0:
-#             await interaction.followup.send(
-#                 embed=Embed(
-#                     title="Error",
-#                     description=f"Failed to delete:\n{', '.join(failedProducts)}",
-#                     colour=interaction.user.colour,
-#                     timestamp=utils.utcnow(),
-#                 ).set_footer(text=f"Redon Hub • Version {self.bot.version}"),
-#             )
-
-
-# class deleteProductView(ui.View):
-#     def __init__(self, products, **kwargs):
-#         super().__init__()
-#         self.add_item(deleteProductSelect(products, **kwargs))
-
-
 async def sendUpdatedProductFiles(self, product: Product):
     users = await get_users()
 
@@ -423,7 +361,7 @@ async def sendUpdatedProductFiles(self, product: Product):
                 pass
 
 
-async def updateUserRoles(self, previousRole: Optional[Role], product: Product):
+async def updateUserRoles(self, previousRole: Optional[int], product: Product):
     if product.role != None:
         users = await get_users()
         guild = self.bot.get_guild(config.Bot.Guilds[0])
@@ -460,7 +398,7 @@ async def updateUserRoles(self, previousRole: Optional[Role], product: Product):
 
 
 class updateProductSelectTags(ui.Select):
-    def __init__(self, tags, bot, product: Product):
+    def __init__(self, tags, bot: Bot, product: Product):
         self.bot = bot
         self.product = product
 
@@ -515,7 +453,7 @@ class updateProductSelectTags(ui.Select):
 
 
 class updateProductSelectTagsNone(ui.Button):
-    def __init__(self, bot, product: Product):
+    def __init__(self, bot: Bot, product: Product):
         self.bot = bot
         self.product = product
         super().__init__(label="None", style=ButtonStyle.primary)
@@ -552,7 +490,7 @@ class updateProductSelectTagsNone(ui.Button):
 
 
 class updateProductSelectTagsCancel(ui.Button):
-    def __init__(self, bot):
+    def __init__(self, bot: Bot):
         self.bot = bot
         super().__init__(label="Cancel", style=ButtonStyle.danger)
 
@@ -571,7 +509,7 @@ class updateProductSelectTagsCancel(ui.Button):
 
 
 class updateProductSelectTagsView(ui.View):
-    def __init__(self, tags, bot, product: Product):
+    def __init__(self, tags: list[Tag], bot: Bot, product: Product):
         super().__init__()
         self.add_item(updateProductSelectTags(tags, bot, product))
         self.add_item(updateProductSelectTagsNone(bot, product))
@@ -579,7 +517,7 @@ class updateProductSelectTagsView(ui.View):
 
 
 class updateProduct(ui.Modal, title="Update Product"):
-    def __init__(self, bot, product: Product):
+    def __init__(self, bot: Bot, product: Product):
         self.bot = bot
         self.product = product
         super().__init__()
@@ -595,10 +533,14 @@ class updateProduct(ui.Modal, title="Update Product"):
         )
         self.add_item(
             ui.TextInput(
-                label="Product Price", placeholder="In Robux", default=product.price
+                label="Product Price",
+                placeholder="In Robux",
+                default=str(product.price),
             )
         )
-        self.add_item(ui.TextInput(label="Developer Product ID", default=product.price))
+        self.add_item(
+            ui.TextInput(label="Developer Product ID", default=str(product.price))
+        )
         self.add_item(
             ui.TextInput(
                 label="Image ID",
@@ -610,16 +552,17 @@ class updateProduct(ui.Modal, title="Update Product"):
     async def on_submit(self, interaction: Interaction) -> None:
         try:
             for item in self.children:
-                if item.label == "Product Name":
-                    self.product.name = item.value
-                elif item.label == "Product Description":
-                    self.product.description = item.value
-                elif item.label == "Product Price":
-                    self.product.price = int(item.value)
-                elif item.label == "Developer Product ID":
-                    self.product.productId = int(item.value)
-                elif item.label == "Image ID":
-                    self.product.imageId = item.value
+                if isinstance(item, ui.TextInput):
+                    if item.label == "Product Name":
+                        self.product.name = item.value
+                    elif item.label == "Product Description":
+                        self.product.description = item.value
+                    elif item.label == "Product Price":
+                        self.product.price = int(item.value)
+                    elif item.label == "Developer Product ID":
+                        self.product.productId = int(item.value)
+                    elif item.label == "Image ID":
+                        self.product.imageId = item.value
 
             await self.product.push()
 
@@ -634,7 +577,6 @@ class updateProduct(ui.Modal, title="Update Product"):
             )
         except Exception as e:
             _log.error(e)
-            # await interaction.followup.send(
             await interaction.response.edit_message(
                 embed=Embed(
                     title="Error",
@@ -647,7 +589,7 @@ class updateProduct(ui.Modal, title="Update Product"):
 
 
 class updateProductStock(ui.Modal, title="Update Product"):
-    def __init__(self, bot, product: Product):
+    def __init__(self, bot: Bot, product: Product):
         self.bot = bot
         self.product = product
         super().__init__()
@@ -656,7 +598,7 @@ class updateProductStock(ui.Modal, title="Update Product"):
             ui.TextInput(
                 label="Stock",
                 placeholder="Leave blank for unlimited",
-                default=product.stock,
+                default=str(product.stock),
                 required=False,
             )
         )
@@ -664,11 +606,12 @@ class updateProductStock(ui.Modal, title="Update Product"):
     async def on_submit(self, interaction: Interaction) -> None:
         try:
             for item in self.children:
-                if item.label == "Stock":
-                    try:
-                        self.product.stock = int(item.value)
-                    except ValueError:
-                        self.product.stock = None
+                if isinstance(item, ui.TextInput):
+                    if item.label == "Stock":
+                        try:
+                            self.product.stock = int(item.value)
+                        except ValueError:
+                            self.product.stock = None
 
             await self.product.push()
 
@@ -683,7 +626,6 @@ class updateProductStock(ui.Modal, title="Update Product"):
             )
         except Exception as e:
             _log.error(e)
-            # await interaction.followup.send(
             await interaction.response.edit_message(
                 embed=Embed(
                     title="Error",
@@ -696,7 +638,7 @@ class updateProductStock(ui.Modal, title="Update Product"):
 
 
 class updateProductRole(ui.Modal, title="Update Product"):
-    def __init__(self, bot, product: Product):
+    def __init__(self, bot: Bot, product: Product):
         self.bot = bot
         self.product = product
         self.currentRole = product.role
@@ -706,7 +648,7 @@ class updateProductRole(ui.Modal, title="Update Product"):
             ui.TextInput(
                 label="Role ID",
                 placeholder="Leave blank for none",
-                default=product.role,
+                default=str(product.role),
                 required=False,
             )
         )
@@ -714,11 +656,12 @@ class updateProductRole(ui.Modal, title="Update Product"):
     async def on_submit(self, interaction: Interaction) -> None:
         try:
             for item in self.children:
-                if item.label == "Role ID":
-                    try:
-                        self.product.role = int(item.value)
-                    except ValueError:
-                        self.product.role = None
+                if isinstance(item, ui.TextInput):
+                    if item.label == "Role ID":
+                        try:
+                            self.product.role = int(item.value)
+                        except ValueError:
+                            self.product.role = None
 
             await self.product.push()
 
@@ -736,19 +679,19 @@ class updateProductRole(ui.Modal, title="Update Product"):
                 await updateUserRoles(self, self.currentRole, self.product)
             except Exception as e:
                 _log.error(e)
-
-                await interaction.channel.send(
-                    embed=Embed(
-                        title="Error",
-                        description="An unknown error has caused members roles to not be updated automatically.\n**The product still has been updated properly**",
-                        colour=interaction.user.colour,
-                        timestamp=utils.utcnow(),
-                    ).set_footer(text=f"Redon Hub • Version {self.bot.version}"),
-                    view=None,
-                )
+                if interaction.channel is not None and isinstance(
+                    interaction.channel, TextChannel
+                ):
+                    await interaction.channel.send(
+                        embed=Embed(
+                            title="Error",
+                            description="An unknown error has caused members roles to not be updated automatically.\n**The product still has been updated properly**",
+                            colour=interaction.user.colour,
+                            timestamp=utils.utcnow(),
+                        ).set_footer(text=f"Redon Hub • Version {self.bot.version}")
+                    )
         except Exception as e:
             _log.error(e)
-            # await interaction.followup.send(
             await interaction.response.edit_message(
                 embed=Embed(
                     title="Error",
@@ -763,7 +706,7 @@ class updateProductRole(ui.Modal, title="Update Product"):
 class updateProductView(ui.View):
     def __init__(self, product: Product, **kwargs):
         self.product = product
-        self.bot = kwargs.get("bot")
+        self.bot: Bot = kwargs.get("bot")  # type: ignore
         super().__init__()
 
     @ui.button(label="Update Other Values", style=ButtonStyle.success)
@@ -806,7 +749,7 @@ class updateProductView(ui.View):
 
 
 class ProductCog(Cog):
-    def __init__(self, bot):
+    def __init__(self, bot: Bot):
         self.bot = bot
 
     product_commands = app_commands.Group(
@@ -1007,20 +950,8 @@ class ProductCog(Cog):
                 ).set_footer(text=f"Redon Hub • Version {self.bot.version}")
             )
 
-        # products = await get_products()
-
-        # await interaction.followup.send(
-        #     embed=Embed(
-        #         title="Delete Product",
-        #         description="Select the product you want to delete",
-        #         colour=interaction.user.colour,
-        #         timestamp=utils.utcnow(),
-        #     ).set_footer(text=f"Redon Hub • Version {self.bot.version}"),
-        #     view=deleteProductView(products, bot=self.bot),
-        # )
-
     @delete_product_command.autocomplete("product_name")
-    async def update_product_command_autocomplete(
+    async def delete_product_command_autocomplete(
         self, interaction: Interaction, current_product_name: str
     ):
         try:
@@ -1038,16 +969,7 @@ class ProductCog(Cog):
     @app_commands.checks.has_permissions(administrator=True)
     async def clear_products_command(self, interaction: Interaction):
         if interaction.user.id not in config.Bot.Owners:
-            # await interaction.response.send_message(
-            #     embed=Embed(
-            #         title="Error",
-            #         description="You are not allowed to use this command.",
-            #         colour=interaction.user.colour,
-            #         timestamp=utils.utcnow(),
-            #     ).set_footer(text=f"Redon Hub • Version {self.bot.version}"),
-            # )
-            # return
-            raise MissingPermissions("Bot Owner")
+            raise MissingPermissions(["Bot Owner"])
 
         try:
             products = await get_products()
@@ -1084,9 +1006,12 @@ class ProductCog(Cog):
                         await delete_product(product.id)
                     except Exception as e:
                         _log.error(e)
-                        await interaction.channel.send(
-                            f"I was unable to delete `{product.name}`"
-                        )
+                        if interaction.channel is not None and isinstance(
+                            interaction.channel, TextChannel
+                        ):
+                            await interaction.channel.send(
+                                f"I was unable to delete `{product.name}`"
+                            )
 
                 await interaction.edit_original_response(
                     embed=Embed(
@@ -1167,5 +1092,5 @@ class ProductCog(Cog):
         _log.info(f"Cog {__name__} ready")
 
 
-async def setup(bot):
+async def setup(bot: Bot):
     await bot.add_cog(ProductCog(bot))

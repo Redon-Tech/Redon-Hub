@@ -2,9 +2,18 @@
     File: /bot/cogs/migrate.py
     Usage: Migrate data from other providers.
 """
-from discord import app_commands, Interaction, ui, SelectOption, Embed, utils, Message
+
+from discord import (
+    app_commands,
+    Interaction,
+    ui,
+    SelectOption,
+    Embed,
+    utils,
+    TextChannel,
+)
 from discord.ext.commands import Cog
-from bot import config, __version__ as version
+from bot import config, __version__ as version, Bot
 from bot.data import (
     get_user_by_discord_id,
     create_product,
@@ -12,7 +21,6 @@ from bot.data import (
     create_user,
     get_user,
 )
-from bot.utils import handlePurchase
 import json
 import logging
 import requests
@@ -63,7 +71,7 @@ async def myPodMigrate(self, interaction: Interaction):
 
     if user is None:
         return await interaction.response.edit_message(
-            "You must be verified to use this migration.", view=None
+            content="You must be verified to use this migration.", view=None
         )
 
     await interaction.response.edit_message(
@@ -86,8 +94,7 @@ async def myPodMigrate(self, interaction: Interaction):
             description="Please enter the secret key of your myPod place.",
             color=interaction.user.color,
             timestamp=utils.utcnow(),
-        ).set_footer(text=f"Redon Hub • Version {version}"),
-        view=None,
+        ).set_footer(text=f"Redon Hub • Version {version}")
     )
     secretKeyMessage = await getUserInput(self, interaction, "myPod Migrate")
     if secretKeyMessage is None:
@@ -153,13 +160,19 @@ async def myPodMigrate(self, interaction: Interaction):
                 product["image"],
                 0,
                 int(product["productid"]),
-                [product["file"]],
+                product["file"],
+                None,
                 None,
             )
         except Exception as e:
             _log.error(e)
             productname = product["name"]
-            await interaction.channel.send(f"Unable to create product {productname}.")
+            if interaction.channel is not None and isinstance(
+                interaction.channel, TextChannel
+            ):
+                await interaction.channel.send(
+                    f"Unable to create product {productname}."
+                )
 
     await interaction.user.send(
         embed=Embed(
@@ -247,7 +260,12 @@ async def vendrMigrate(self, interaction: Interaction):
                 linkedTags[tag["_id"]] = newTag
             except Exception as e:
                 _log.error(e)
-                await interaction.channel.send(f"Unable to create tag {tag['Name']}.")
+                if interaction.channel is not None and isinstance(
+                    interaction.channel, TextChannel
+                ):
+                    await interaction.channel.send(
+                        f"Unable to create tag {tag['Name']}."
+                    )
 
     for product in data["Products"]:
         try:
@@ -262,13 +280,19 @@ async def vendrMigrate(self, interaction: Interaction):
                 product["Image"],
                 0,
                 int(product["DevProduct"]),
-                [product["File"]],
+                product["File"],
                 tags,
+                None,
             )
         except Exception as e:
             _log.error(e)
             productname = product["Name"]
-            await interaction.channel.send(f"Unable to create product {productname}.")
+            if interaction.channel is not None and isinstance(
+                interaction.channel, TextChannel
+            ):
+                await interaction.channel.send(
+                    f"Unable to create product {productname}."
+                )
 
     await interaction.user.send(
         embed=Embed(
@@ -338,7 +362,8 @@ async def parcelMigrate(self, interaction: Interaction):
                 product["decalID"],
                 0,
                 int(product["devproduct_id"]),
-                [product["filepath"]],
+                product["filepath"],
+                None,
                 None,
             )
 
@@ -354,20 +379,31 @@ async def parcelMigrate(self, interaction: Interaction):
                         cachedUsers[owner].purchases.append(newProduct.id)
                     except Exception as e:
                         _log.error(e)
-                        await interaction.channel.send(
-                            f"Unable to add product {product['name']} to user {owner}."
-                        )
+                        if interaction.channel is not None and isinstance(
+                            interaction.channel, TextChannel
+                        ):
+                            await interaction.channel.send(
+                                f"Unable to add product {product['name']} to user {owner}."
+                            )
         except Exception as e:
             _log.error(e)
             productname = product["name"]
-            await interaction.channel.send(f"Unable to create product {productname}.")
+            if interaction.channel is not None and isinstance(
+                interaction.channel, TextChannel
+            ):
+                await interaction.channel.send(
+                    f"Unable to create product {productname}."
+                )
 
     for user in cachedUsers:
         try:
             await cachedUsers[user].push()
         except Exception as e:
             _log.error(e)
-            await interaction.channel.send(f"Unable to save user {user}.")
+            if interaction.channel is not None and isinstance(
+                interaction.channel, TextChannel
+            ):
+                await interaction.channel.send(f"Unable to save user {user}.")
 
     await interaction.user.send(
         embed=Embed(
@@ -414,7 +450,7 @@ class MigrateView(ui.View):
 
 
 class Migrate(Cog):
-    def __init__(self, bot):
+    def __init__(self, bot: Bot):
         self.bot = bot
 
     @app_commands.command(
@@ -443,5 +479,5 @@ class Migrate(Cog):
         _log.info(f"Cog {__name__} ready")
 
 
-async def setup(bot):
+async def setup(bot: Bot):
     await bot.add_cog(Migrate(bot))

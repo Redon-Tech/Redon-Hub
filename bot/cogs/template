@@ -2,14 +2,16 @@
     File: /bot/cogs/
     Usage: 
 """
+
 from discord.ext.commands import Cog
+from bot import Bot
 import logging
 
 _log = logging.getLogger(__name__)
 
 
 class Template(Cog):
-    def __init__(self, bot):
+    def __init__(self, bot: Bot):
         self.bot = bot
 
     @Cog.listener()
@@ -17,5 +19,5 @@ class Template(Cog):
         _log.info(f"Cog {__name__} ready")
 
 
-async def setup(bot):
+async def setup(bot: Bot):
     await bot.add_cog(Template(bot))

@@ -3,5 +3,6 @@
         "editor.defaultFormatter": "ms-python.black-formatter"
     },
     "python.formatting.provider": "none",
-    "luau-lsp.sourcemap.rojoProjectFile": "roblox/default.project.json"
+    "luau-lsp.sourcemap.rojoProjectFile": "roblox/default.project.json",
+    "python.analysis.typeCheckingMode": "standard"
 }
