@@ -3,10 +3,83 @@
     Usage: A util to send products to a user, log the purchase, and give the user roles
 """
 
-from discord import Embed, utils, TextChannel
+from discord import Embed, utils, TextChannel, File
 from bot.models import CustomCog
 from bot.data import User, Product
 from bot import config
+from typing import TypedDict, Optional
+from logging import getLogger
+from urllib.parse import urlparse
+import requests
+import os
+
+_log = getLogger(__name__)
+
+
+class AttachmentData(TypedDict):
+    files: list[str]
+    nonDownloadable: list[str]
+
+
+async def shouldDownload(url) -> bool:
+    headers = requests.head(url).headers
+    content_length = headers.get("Content-Length", None)
+
+    if "Content-Disposition" in headers and headers["Content-Disposition"].startswith(
+        "attachment"
+    ):
+        if content_length and int(content_length) < 10**7:
+            return True
+    else:
+        accepted_formats = [
+            "application/gzip",
+            "application/vnd.rar",
+            "application/x-7z-compressed",
+            "application/zip",
+            "application/x-tar",
+            "image/bmp",
+            "image/gif",
+            "image/jpeg",
+            "image/png",
+            "image/svg+xml",
+            "image/tiff",
+            "image/webp",
+            "application/rtf",
+            "text/plain",
+        ]
+
+        if headers["Content-Type"] in accepted_formats or (
+            content_length and int(content_length) > 0
+        ):
+            if content_length and int(content_length) < 10**7:
+                return True
+
+    return False
+
+
+async def getAttachments(product: Product) -> AttachmentData:
+    files: list[str] = []
+    nonDownloadable: list[str] = []
+    for attachment in product.attachments:
+        if await shouldDownload(attachment):
+            try:
+                fileName = urlparse(attachment).path.split("/")[-1]
+                with open(fileName, "wb") as f:
+                    for chunk in requests.get(attachment, stream=True).iter_content(
+                        8192
+                    ):
+                        f.write(chunk)
+
+                files.append(fileName)
+            except Exception as e:
+                _log.error(e)
+        else:
+            nonDownloadable.append(attachment)
+
+    return {
+        "files": files,
+        "nonDownloadable": nonDownloadable,
+    }
 
 
 async def handlePurchase(cog: CustomCog, user: User, product: Product):
@@ -17,21 +90,32 @@ async def handlePurchase(cog: CustomCog, user: User, product: Product):
             if dm_channel is None:
                 dm_channel = await discordUser.create_dm()
 
-            await dm_channel.send(
-                embed=Embed(
-                    title="Product Retrieved",
-                    description=f"Thanks for purchasing from us! You can find the information link below.",
-                    colour=discordUser.accent_color or discordUser.color,
-                    timestamp=utils.utcnow(),
-                )
-                .set_footer(text=f"Redon Hub • Version {cog.bot.version}")
-                .add_field(name="Product", value=product.name, inline=True)
-                .add_field(
-                    name="Attachments",
-                    value="\n".join(product.attachments) or "None",
+            attachments = await getAttachments(product)
+
+            embed = Embed(
+                title="Product Retrieved",
+                description=f"Thanks for purchasing from us! You can find the information link below.",
+                colour=discordUser.accent_color or discordUser.color,
+                timestamp=utils.utcnow(),
+            )
+            embed.set_footer(text=f"Redon Hub • Version {cog.bot.version}")
+            embed.add_field(name="Product", value=product.name, inline=True)
+            if len(attachments["nonDownloadable"]) > 0:
+                embed.add_field(
+                    name="Other Links",
+                    value="\n".join(attachments["nonDownloadable"]),
                     inline=False,
                 )
-            )
+
+            files = []
+            for file in attachments["files"]:
+                files.append(File(file))
+
+            await dm_channel.send(embed=embed, files=files)
+
+            for file in attachments["files"]:
+                if os.path.exists(file):
+                    os.remove(file)
     except Exception as e:
         pass
 
