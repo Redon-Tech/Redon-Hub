@@ -66,7 +66,7 @@ async def get_user_by_discord_id(discord_id: int) -> User:
     return User(user)
 
 
-async def get_users() -> list:
+async def get_users() -> list[User]:
     users = await db.user.find_many()
     return [User(user) for user in users]
 

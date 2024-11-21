@@ -237,7 +237,7 @@ async def users_get() -> dict[int, UserDisplay]:
 
     results = {}
     for user in users:
-        results[user.id] = UserDisplay(**user.model_dump())
+        results[user.id] = UserDisplay(**user.dict())
 
     return results
 
@@ -402,7 +402,7 @@ async def products_get() -> dict[int, ProductDisplay]:
 
     results = {}
     for product in products:
-        results[product.id] = ProductDisplay(**product.model_dump())
+        results[product.id] = ProductDisplay(**product.dict())
 
     return results
 

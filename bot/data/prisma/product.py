@@ -106,7 +106,7 @@ async def get_product_by_name(name: str) -> Product:
     return Product(product)
 
 
-async def get_products() -> list:
+async def get_products() -> list[Product]:
     products = await db.product.find_many()
     return [Product(product) for product in products]
 
