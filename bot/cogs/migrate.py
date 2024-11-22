@@ -160,8 +160,8 @@ async def myPodMigrate(self, interaction: Interaction):
                 product["image"],
                 0,
                 int(product["productid"]),
-                product["file"],
                 None,
+                [product["file"]],
                 None,
             )
         except Exception as e:
@@ -280,9 +280,9 @@ async def vendrMigrate(self, interaction: Interaction):
                 product["Image"],
                 0,
                 int(product["DevProduct"]),
+                None,
                 product["File"],
                 tags,
-                None,
             )
         except Exception as e:
             _log.error(e)
@@ -362,8 +362,8 @@ async def parcelMigrate(self, interaction: Interaction):
                 product["decalID"],
                 0,
                 int(product["devproduct_id"]),
-                product["filepath"],
                 None,
+                [product["filepath"]],
                 None,
             )
 
