@@ -281,7 +281,7 @@ async def vendrMigrate(self, interaction: Interaction):
                 0,
                 int(product["DevProduct"]),
                 None,
-                product["File"],
+                [product["File"]],
                 tags,
             )
         except Exception as e:
