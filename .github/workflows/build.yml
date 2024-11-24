@@ -15,8 +15,8 @@ jobs:
         with:
           toolchain: stable
       
-      - name: Install Foreman
-        uses: Roblox/setup-foreman@v2
+      - name: Install Aftman
+        uses: ok-nick/setup-aftman@v0.4.2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 

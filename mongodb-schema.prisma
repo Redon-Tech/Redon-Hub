@@ -25,7 +25,7 @@ model Product {
   description String
   imageId     String   @default("")
   price       Int
-  productId   Int
+  productId   BigInt
   stock       Int?
   role        BigInt?
   attachments String[]

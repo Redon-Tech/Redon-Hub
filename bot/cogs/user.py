@@ -3,14 +3,7 @@
     Usage: User related commands
 """
 
-from discord import (
-    app_commands,
-    Interaction,
-    Member,
-    Embed,
-    utils,
-    Forbidden,
-)
+from discord import app_commands, Interaction, Member, Embed, utils, Forbidden, File
 from discord.ext.commands import Cog
 from bot.data import (
     get_user_by_discord_id,
@@ -18,10 +11,17 @@ from bot.data import (
     get_product_by_name,
     get_products,
 )
-from bot.utils import ConfirmView, JumpToMessageView, handlePurchase, handleRevoke
+from bot.utils import (
+    ConfirmView,
+    JumpToMessageView,
+    handlePurchase,
+    handleRevoke,
+    getAttachments,
+)
 from bot import Bot
 from typing import Optional
 import logging
+import os
 
 _log = logging.getLogger(__name__)
 
@@ -130,21 +130,32 @@ class User(Cog):
                 if dm_channel is None:
                     dm_channel = await interaction.user.create_dm()
 
-                message = await dm_channel.send(
-                    embed=Embed(
-                        title="Product Retrieved",
-                        description=f"Thanks for purchasing from us! You can find the information link below.",
-                        colour=interaction.user.colour,
-                        timestamp=utils.utcnow(),
-                    )
-                    .set_footer(text=f"Redon Hub • Version {self.bot.version}")
-                    .add_field(name="Product", value=product.name, inline=True)
-                    .add_field(
-                        name="Attachments",
-                        value="\n".join(product.attachments) or "None",
+                attachments = await getAttachments(product)
+
+                embed = Embed(
+                    title="Product Retrieved",
+                    description=f"Thanks for purchasing from us! You can find the information link below.",
+                    colour=interaction.user.colour,
+                    timestamp=utils.utcnow(),
+                )
+                embed.set_footer(text=f"Redon Hub • Version {self.bot.version}")
+                embed.add_field(name="Product", value=product.name, inline=True)
+                if len(attachments["nonDownloadable"]) > 0:
+                    embed.add_field(
+                        name="Other Links",
+                        value="\n".join(attachments["nonDownloadable"]),
                         inline=False,
                     )
-                )
+
+                files = []
+                for file in attachments["files"]:
+                    files.append(File(file))
+
+                message = await dm_channel.send(embed=embed, files=files)
+
+                for file in attachments["files"]:
+                    if os.path.exists(file):
+                        os.remove(file)
 
                 await interaction.followup.send(
                     embed=Embed(
