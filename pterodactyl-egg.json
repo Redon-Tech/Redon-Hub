@@ -13,7 +13,7 @@
         "ghcr.io\/parkervcp\/yolks:python_3.9": "ghcr.io\/parkervcp\/yolks:python_3.9"
     },
     "file_denylist": [],
-    "startup": "if [[ ! -z ${VERSION} ]]; then echo -e \"Using version ${VERSION}\"; else echo -e \"Please set the VERSION variable\"; exit 0; fi; if [[ -d .git ]] && [[ ${MODFILES} == 0 ]]; then echo -e \"Forcing git checkout\"; git fetch --all --tags; git checkout tags\/${VERSION} -f; elif [[ -d .git ]] && [[ ${MODFILES} == 1 ]]; then echo -e \"User modify files enabled\"; git fetch --all --tags; git checkout tags\/${VERSION}; fi; if [ -f \/home\/container\/requirements.txt ]; then pip install -U --prefix .local -r \/home\/container\/requirements.txt; fi; if [[ ${DBPUSH} == 0 ]]; then echo -e \"Running prisma generate\"; \/usr\/local\/bin\/python -m prisma generate --schema \/home\/container\/mysql-schema.prisma; elif [[ ${DBPUSH} == 1 ]]; then echo -e \"Running prisma db push\"; \/usr\/local\/bin\/python -m prisma db push --schema \/home\/container\/mysql-schema.prisma; fi; \/usr\/local\/bin\/python \/home\/container\/launcher.py;",
+    "startup": "if [[ ! -z ${VERSION} ]]; then echo -e \"Using version ${VERSION}\"; else echo -e \"Please set the VERSION variable\"; exit 0; fi; if [[ -d .git ]] && [[ ${MODFILES} == 0 ]]; then echo -e \"Forcing git checkout\"; git fetch --all --tags; git checkout tags\/${VERSION} -f; elif [[ -d .git ]] && [[ ${MODFILES} == 1 ]]; then echo -e \"User modify files enabled\"; git fetch --all --tags; git checkout tags\/${VERSION}; fi; if [ -f \/home\/container\/requirements.txt ]; then pip install -U --prefix .local -r \/home\/container\/requirements.txt; fi; if [[ ${DBPUSH} == 0 ]]; then echo -e \"Running prisma generate\"; \/usr\/local\/bin\/python -m prisma generate --schema \/home\/container\/mysql-schema.prisma; elif [[ ${DBPUSH} == 1 ]]; then echo -e \"Running prisma db push\"; \/usr\/local\/bin\/python -m prisma migrate deploy --schema \/home\/container\/mysql-schema.prisma; fi; \/usr\/local\/bin\/python \/home\/container\/launcher.py;",
     "config": {
         "files": "{}",
         "startup": "{\r\n    \"done\": \"Database Connected\"\r\n}",
@@ -32,7 +32,7 @@
             "name": "version",
             "description": "The version of the bot to use.\r\nIf you wish to update to latest version please contact support staff.\r\nPlease contact support if you do not know how to update your database.",
             "env_variable": "version",
-            "default_value": "1.0.2",
+            "default_value": "1.1.1",
             "user_viewable": true,
             "user_editable": true,
             "rules": "required|string",
