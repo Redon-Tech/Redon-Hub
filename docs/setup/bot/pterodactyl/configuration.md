@@ -11,6 +11,12 @@ The bot uses a mix of both a `config.json` and a `.env` file for configuration. 
     <source src="/assets/create_pterodactyl_config.mp4" type="video/mp4">
 </video>
 
+!!! danger "Common Configuration Mistake"
+    
+    Please ensure that you change `Data.Database` to `mysql`. 
+
+    If you do not, the bot will not work correctly.
+
 ## Configuration Explained
 Now that we have our `config.json` file we can start configuring it. Below is a list of all the options and what they do.
 ```json
@@ -63,6 +69,15 @@ Now that we have our `config.json` file we can start configuring it. Below is a 
     - IP: The IP the API will listen on. (Best left as `"0.0.0.0"`)
     - Port: The port the API will listen on. (This port must be open to the internet)
     - Key: The key the API will use for authentication. (This key must be kept secret)
+
+
+!!! danger "Common Configuration Mistake"
+    
+    Please ensure `API.Port` is set to the port of your server. You can find it on the console page.
+
+    It is the number after the `:` in the URL.
+
+    For example, `node5.redon.tech:12345` would have a port of `12345`.
 
 
 ## Finishing the .env file

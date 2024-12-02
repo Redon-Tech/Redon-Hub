@@ -5,9 +5,23 @@ authors:
 
 This guide is the next part after [installing the system](setup.md). If you have not installed the system yet please do so before continuing.
 
-!!! warning
+!!! warning "Database Required"
 
     The Pterodactyl egg is designed for MySQL (MariaDB) only. If you are using a different database the hosting provider will need to modify your egg.
+
+### Creating Database
+If your hosting provider allows you to create a database. If not, you will need to either contact your hosting provider or find a database hosting provider.
+
+Redon Tech hosting provides you with a database. You can create a database by following the steps below.
+<video width="1920" height="1080" controls>
+    <source src="/assets/create_pterodactyl_database.mp4" type="video/mp4">
+</video>
+
+!!! danger "Common Database String Issues"
+
+    If you use the connection string provided by the panel, **you will need to remove the `jdbc:` from the beginning** of the string. 
+
+    The connection string should look like this `mysql://USER:PASSWORD@HOST:PORT/DATABASE`.
 
 ### Connection String
 After you have choosen the database type you are going to use, make the connector string and save it for later. You will need it in the next step. [Get help with connection strings](https://www.prisma.io/docs/reference/database-reference/connection-urls)
