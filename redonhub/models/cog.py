@@ -4,7 +4,7 @@
 """
 
 from discord.ext.commands import Cog
-from bot import Bot
+from redonhub import Bot
 
 
 class CustomCog(Cog):

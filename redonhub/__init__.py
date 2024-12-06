@@ -35,7 +35,7 @@ class Bot(BotBase):
 
         for cog in cogs:
             _log.info(f"Bot: Loading Extension {cog}")
-            await self.load_extension(f"bot.cogs.{cog}")
+            await self.load_extension(f"redonhub.cogs.{cog}")
 
         await self.sync_commands()
 
@@ -53,11 +53,23 @@ class Bot(BotBase):
     async def on_ready(self):
         if not self.ready:
             self.ready = True
-            _log.info(f"Bot Online | {self.user} | {self.user and self.user.id}")
+            _log.info(f"Bot Ready")
 
             await database.connect()
 
             _log.info("Database Connected")
+
+            _log.info(f"Bot Online | {self.user} | { self.user and self.user.id}")
+            bot = self.user
+            if bot:
+                _log.info(
+                    f"Quick Invite Link: https://discord.com/oauth2/authorize?client_id={bot.id}&permissions=8&integration_type=0&scope=applications.commands+bot"
+                )
+                _log.warning(
+                    "Quick Invite Link gives the bot all permissions, please ensure to not leak your bot token."
+                )
+            else:
+                _log.info("Unable to generate Quick Invite Link")
 
     async def on_app_command_error(
         self, interaction: Interaction, error: AppCommandError

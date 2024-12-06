@@ -24,13 +24,19 @@ classifiers = [
 dynamic = ["version", "dependencies"]
 requires-python = ">= 3.9"
 
-[project.setuptools.dynamic]
-version = {attr = "Redon-Hub.__version__"}
-dependencies = {file = ["requirements.txt"]}
-
 [project.urls]
 Funding = "https://ko-fi.com/parker02311"
 Documentation = "https://hub.redon.tech"
 Repository = "https://github.com/Redon-Tech/Redon-Hub"
 Issues = "https://github.com/Redon-Tech/Redon-Hub/issues"
 Changelog = "https://github.com/Redon-Tech/Redon-Hub/releases"
+
+[project.scripts]
+Redon-Hub = "redonhub.cli:main"
+
+[tool.setuptools.packages.find]
+exclude = ["roblox", "docs"]
+
+[tool.setuptools.dynamic]
+version = {attr = "redonhub.__version__"}
+dependencies = {file = ["requirements.txt"]}

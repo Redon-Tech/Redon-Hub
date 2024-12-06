@@ -13,8 +13,8 @@ from discord import (
     TextChannel,
 )
 from discord.ext.commands import Cog
-from bot import config, __version__ as version, Bot
-from bot.data import (
+from redonhub import config, __version__ as version, Bot
+from redonhub.data import (
     get_user_by_discord_id,
     create_product,
     create_tag,

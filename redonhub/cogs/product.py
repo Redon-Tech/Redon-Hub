@@ -18,7 +18,7 @@ from discord import (
 from discord.app_commands import MissingPermissions
 from asyncio import TimeoutError
 from discord.ext.commands import Cog
-from bot.data import (
+from redonhub.data import (
     get_users,
     get_products,
     get_product_by_name,
@@ -28,8 +28,8 @@ from bot.data import (
     Product,
     Tag,
 )
-from bot import config, Bot
-from bot.utils import ConfirmView, getAttachments
+from redonhub import config, Bot
+from redonhub.utils import ConfirmView, getAttachments
 from typing import Optional
 import logging
 import re

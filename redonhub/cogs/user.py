@@ -5,20 +5,14 @@
 
 from discord import app_commands, Interaction, Member, Embed, utils, Forbidden, File
 from discord.ext.commands import Cog
-from bot.data import (
+from redonhub.data import (
     get_user_by_discord_id,
     get_product,
     get_product_by_name,
     get_products,
 )
-from bot.utils import (
-    ConfirmView,
-    JumpToMessageView,
-    handlePurchase,
-    handleRevoke,
-    getAttachments,
-)
-from bot import Bot
+from redonhub.utils import ConfirmView, JumpToMessageView, handlePurchase, handleRevoke
+from redonhub import Bot
 from typing import Optional
 import logging
 import os

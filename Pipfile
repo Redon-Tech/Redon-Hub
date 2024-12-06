@@ -15,6 +15,12 @@ pillow = "==11.0.0"
 requests = "==2.32.3"
 
 [dev-packages]
+mkdocs-material = "*"
+mkdocstrings = "*"
+httpx = "*"
+mkdocs-literate-nav = "*"
+mkdocs-gen-files = "*"
+mkdocs-mermaid2-plugin = "*"
 
 [requires]
 python_version = "3.9"
