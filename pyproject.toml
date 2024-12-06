@@ -1,0 +1,42 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "Redon-Hub"
+description = "A product purchasing bot for Roblox groups. A.K.A. Hub."
+authors = [
+    {name = "parker02311", email = "parker02311@redon.tech"},
+    {name = "Redon Tech"}
+]
+readme = "README.md"
+license = {file = "LICENSE"}
+keywords = ["roblox", "product", "purchasing", "bot", "hub"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Lua",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.9",
+    "Topic :: Office/Business :: Financial",
+]
+dynamic = ["version", "dependencies"]
+requires-python = ">= 3.9"
+
+[project.urls]
+Funding = "https://ko-fi.com/parker02311"
+Documentation = "https://hub.redon.tech"
+Repository = "https://github.com/Redon-Tech/Redon-Hub"
+Issues = "https://github.com/Redon-Tech/Redon-Hub/issues"
+Changelog = "https://github.com/Redon-Tech/Redon-Hub/releases"
+
+[project.scripts]
+Redon-Hub = "redonhub.cli:main"
+
+[tool.setuptools.packages.find]
+exclude = ["roblox", "docs"]
+
+[tool.setuptools.dynamic]
+version = {attr = "redonhub.__version__"}
+dependencies = {file = ["requirements.txt"]}

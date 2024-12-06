@@ -4,9 +4,9 @@
 """
 
 from discord import Embed, utils, TextChannel, File
-from bot.models import CustomCog
-from bot.data import User, Product
-from bot import config
+from redonhub.models import CustomCog
+from redonhub.data import User, Product
+from redonhub import config
 from typing import TypedDict, Optional
 from logging import getLogger
 from urllib.parse import urlparse

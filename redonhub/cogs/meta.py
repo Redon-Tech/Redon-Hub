@@ -5,7 +5,7 @@
 
 from discord.ext.commands import Cog
 from discord import Activity, ActivityType, Status
-from bot import config, Bot
+from redonhub import config, Bot
 import logging
 
 _log = logging.getLogger(__name__)

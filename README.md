@@ -51,11 +51,11 @@ or view API documentation on your hub by adding `/docs` to the end of your hub's
 | Complete | Tag Commands     | Tag related commands      |
 
 
-### V1.1
+### V2
 
-| Status | Name | Description |
-| ------ | ---- | ----------- |
-
+| Status      | Name    | Description                 |
+| ----------- | ------- | --------------------------- |
+| In Progress | Package | Turn the hub into a package |
 
 ### Version To Be Determined
 | Status      | Name                    | Description | Reason TBD                     |
@@ -65,3 +65,7 @@ or view API documentation on your hub by adding `/docs` to the end of your hub's
 | In Planning | Product Loaning         | N/A         | Haven't planned that far ahead |
 | In Planning | Product Licenses        | N/A         | Haven't planned that far ahead |
 | In Planning | Product Grant Log Title | N/A         | Haven't planned that far ahead |
+
+Packaging ideas:
+- Copy the bot folder into the directory asked
+- Launch the bot from the current directory if it exists

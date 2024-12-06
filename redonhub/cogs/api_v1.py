@@ -9,8 +9,8 @@ from discord import app_commands, Interaction
 from fastapi import FastAPI, HTTPException, Depends, Security, status
 from fastapi.security.api_key import APIKeyHeader
 from starlette.responses import RedirectResponse
-from bot import config, Bot
-from bot.data import (
+from redonhub import config, Bot
+from redonhub.data import (
     get_user,
     get_users,
     get_user_by_discord_id,
@@ -29,7 +29,7 @@ from bot.data import (
     User as UserModel,
     Tag as TagModel,
 )
-from bot.utils import handlePurchase, handleRevoke
+from redonhub.utils import handlePurchase, handleRevoke
 from pydantic import BaseModel
 from typing import Union, Optional
 from datetime import datetime

@@ -12,8 +12,15 @@ from discord import (
     SelectOption,
 )
 from discord.ext.commands import Cog
-from bot.data import get_tag, get_tag_by_name, get_tags, create_tag, delete_tag, Tag
-from bot import Bot, __version__ as version
+from redonhub.data import (
+    get_tag,
+    get_tag_by_name,
+    get_tags,
+    create_tag,
+    delete_tag,
+    Tag,
+)
+from redonhub import Bot, __version__ as version
 from PIL import ImageColor
 import logging
 

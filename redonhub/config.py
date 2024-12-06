@@ -8,10 +8,14 @@
 from pathlib import Path
 from logging import getLogger
 import json
+import os
 
 _log = getLogger(__name__)
+parent = os.path.dirname(os.path.abspath(__file__)).replace("redonhub", "")
 
-with open("example.config.json", encoding="UTF-8") as f:
+# with open("example.config.json", encoding="UTF-8") as f:
+#     _CONFIG = json.load(f)
+with open(parent + "example.config.json", encoding="UTF-8") as f:
     _CONFIG = json.load(f)
 
 
