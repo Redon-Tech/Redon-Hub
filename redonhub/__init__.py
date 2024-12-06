@@ -14,7 +14,7 @@ import os
 import datetime
 
 _log = logging.getLogger(__name__)
-__version__ = "1.0.2"
+__version__ = "2.0-rc.1"
 
 
 class Bot(BotBase):
