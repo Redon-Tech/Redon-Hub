@@ -70,7 +70,9 @@ extra_css:
 
 plugins:
   - search
-  - swagger-ui-tag
+  - swagger-ui-tag:
+      extra_css:
+        - assets/css/swagger-ui.css
 
 markdown_extensions:
   - pymdownx.highlight
