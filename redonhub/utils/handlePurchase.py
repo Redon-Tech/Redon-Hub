@@ -10,7 +10,8 @@ from redonhub import config
 from typing import TypedDict, Optional
 from logging import getLogger
 from urllib.parse import urlparse
-import requests
+import aiohttp
+import aiofiles
 import os
 
 _log = getLogger(__name__)
@@ -22,59 +23,63 @@ class AttachmentData(TypedDict):
 
 
 async def shouldDownload(url) -> bool:
-    headers = requests.head(url).headers
-    content_length = headers.get("Content-Length", None)
-
-    if "Content-Disposition" in headers and headers["Content-Disposition"].startswith(
-        "attachment"
-    ):
-        if content_length and int(content_length) < 10**7:
-            return True
-    else:
-        accepted_formats = [
-            "application/gzip",
-            "application/vnd.rar",
-            "application/x-7z-compressed",
-            "application/zip",
-            "application/x-tar",
-            "image/bmp",
-            "image/gif",
-            "image/jpeg",
-            "image/png",
-            "image/svg+xml",
-            "image/tiff",
-            "image/webp",
-            "application/rtf",
-            "text/plain",
-        ]
-
-        if headers["Content-Type"] in accepted_formats or (
-            content_length and int(content_length) > 0
-        ):
-            if content_length and int(content_length) < 10**7:
-                return True
-
-    return False
+    async with aiohttp.ClientSession() as session:
+        async with session.head(url) as response:
+            headers = response.headers
+            content_length = headers.get("Content-Length", None)
+        
+            if "Content-Disposition" in headers and headers["Content-Disposition"].startswith(
+                "attachment"
+            ):
+                if content_length and int(content_length) < 10**7:
+                    return True
+            else:
+                accepted_formats = [
+                    "application/gzip",
+                    "application/vnd.rar",
+                    "application/x-7z-compressed",
+                    "application/zip",
+                    "application/x-tar",
+                    "image/bmp",
+                    "image/gif",
+                    "image/jpeg",
+                    "image/png",
+                    "image/svg+xml",
+                    "image/tiff",
+                    "image/webp",
+                    "application/rtf",
+                    "text/plain",
+                ]
+        
+                if headers["Content-Type"] in accepted_formats or (
+                    content_length and int(content_length) > 0
+                ):
+                    if content_length and int(content_length) < 10**7:
+                        return True
+        
+            return False
 
 
 async def getAttachments(product: Product) -> AttachmentData:
     files: list[str] = []
     nonDownloadable: list[str] = []
-    for attachment in product.attachments:
-        if await shouldDownload(attachment):
-            try:
-                fileName = urlparse(attachment).path.split("/")[-1]
-                with open(fileName, "wb") as f:
-                    for chunk in requests.get(attachment, stream=True).iter_content(
-                        8192
-                    ):
-                        f.write(chunk)
 
-                files.append(fileName)
-            except Exception as e:
-                _log.error(e)
-        else:
-            nonDownloadable.append(attachment)
+    async with aiohttp.ClientSession() as session:
+        for attachment in product.attachments:
+            if await shouldDownload(session, attachment):
+                try:
+                    fileName = urlparse(attachment).path.split("/")[-1]
+                    async with session.get(attachment) as resp:
+                        resp.raise_for_status()
+                        async with aiofiles.open(fileName, "wb") as f:
+                            async for chunk in resp.content.iter_chunked(8192):
+                                await f.write(chunk)
+
+                    files.append(fileName)
+                except Exception as e:
+                    _log.error(f"Error downloading {attachment}: {e}")
+            else:
+                nonDownloadable.append(attachment)
 
     return {
         "files": files,
