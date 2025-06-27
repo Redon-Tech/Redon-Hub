@@ -1,3 +1,8 @@
+> [!WARNING]
+> Redon Hub V1 is no longer being actively maintained. V2 is in the works but will not be out for a long while.
+> The main reason behind this is due to the outdated dependencies and codebase.
+> Feel free to reach out with any questions.
+
 <h1 align="center">Redon Hub</h1>
 
 <div align="center">
